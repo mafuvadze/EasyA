@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,148 +43,101 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DisplayEssay extends AppCompatActivity implements FindCallback<ParseObject>{
+public class DisplayEssay extends AppCompatActivity implements FindCallback<ParseObject>
+{
 
-    TextView txt, title;
-    List<String> transition_words = new ArrayList<>();
-    int adv = 0, simple = 0, mid = 0, transitions = 0, total_words = 0;
-    Button btn;
-    String essay;
-    SpannableString ss;
-    Map<String, Integer> words = new HashMap<>();
+    ImageView spell, read, edit, syn, analyze;
+    TextView mode_indicator, essay;
+    Mode current_mode = Mode.reading;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_essay);
 
-        transition_words.add("however");
-        transition_words.add("although");
-        transition_words.add("but");
-        transition_words.add("such as");
-        transition_words.add("furthermore");
-        transition_words.add("also");
-        transition_words.add("while");
-        transition_words.add("albeit");
-        transition_words.add("granted");
-        transition_words.add("therefore");
-        transition_words.add("thus");
-        transition_words.add("overall");
+        essay = (TextView) findViewById(R.id.essay);
+
+        initializeModeViews();
+        recieveIntent();
 
 
 
-        btn = (Button) findViewById(R.id.btn);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               Intent intent = new Intent(DisplayEssay.this, show.class);
-                startActivity(intent);
-            }
-        });
-        txt = (TextView) findViewById(R.id.display);
-        txt.setMovementMethod(LinkMovementMethod.getInstance());
-        txt.setHighlightColor(Color.TRANSPARENT);
+    }
 
+    private void recieveIntent()
+    {
         String title = getIntent().getStringExtra("title");
         String subject = getIntent().getStringExtra("subject");
         ParseQuery query = new ParseQuery("essays");
         query.whereEqualTo("subject", subject);
         query.findInBackground(this);
-
     }
 
-    private void scanEssay()
+    private void initializeModeViews()
     {
-        String mostUsedWord;
-        int top = 0;
-        String w = "";
-        for(String word : words.keySet())
-        {
-            int i = words.get(word);
-            if(i >= top)
-            {
-                w = word;
+        mode_indicator = (TextView) findViewById(R.id.mode_indicator);
+        spell = (ImageView) findViewById(R.id.spell);
+        read = (ImageView) findViewById(R.id.read);
+        edit = (ImageView) findViewById(R.id.edit);
+        syn = (ImageView) findViewById(R.id.syn);
+        analyze = (ImageView) findViewById(R.id.analyze);
+
+        spell.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                current_mode = Mode.spelling;
+                mode_indicator.setText("Spelling Mode");
             }
-        }
+        });
 
-        mostUsedWord = w;
-
-    }
-
-
-    public void findAllWords()
-    {
-        int current = 0;
-        int first = 0;
-        Map<Integer, Integer> start_end = new HashMap<>();
-        for(int i = 0; i < essay.length(); i++)
-        {
-            if(isValidCharacter(essay.charAt(current)))
-            {
-                current++;
+        read.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                current_mode = Mode.reading;
+                mode_indicator.setText("Reading Mode");
             }
-            else
-            {
-                total_words++;
-                start_end.put(first, current + 1);
-                String word = essay.substring(first, current);
-                if(transition_words.contains(word))
-                {
-                    transitions++;
-                }
-                if(word.length() < 4)
-                {
-                    simple++;
-                }
-                else if(word.length() >= 4 && word.length() <= 6)
-                {
-                    mid++;
-                }
-                else
-                {
-                    adv++;
-                }
-                if(words.containsKey(word) && word.length() > 3)
-                {
-                    int n = words.get(word);
-                    words.put(word, n++);
-                }
-                else if(word.length() > 3) {
-                    words.put(word, 1);
-                }
-                first = current + 1;
-                current++;
+        });
+
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                current_mode = Mode.editing;
+                mode_indicator.setText("Editing Mode");
             }
-        }
+        });
+        syn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                current_mode = Mode.synonym;
+                mode_indicator.setText("Synonym Mode");
+            }
+        });
 
-        for(int i : start_end.keySet())
-        {
-            ss.setSpan(new MyClickableSpan(essay, i, start_end.get(i)), i, start_end.get(i), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
+        analyze.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                current_mode = Mode.analyzing;
+                mode_indicator.setText("Analyze Mode");
+            }
+        });
 
-        txt.setText(ss);
-    }
 
-    public boolean isValidCharacter(char ch)
-    {
-        String str = ch + "";
-        char c = str.toLowerCase().charAt(0);
-        if(((int) 'a' <= (int) c) && (int) 'z' >= (int) c)
-        {
-            return true;
-        }
-        else {
-            return false;
-        }
     }
 
     @Override
     public void done(List<ParseObject> objects, ParseException e) {
-        txt.setText((String) objects.get(0).get("content"));
-        essay = (String) objects.get(0).get("content");
-        ss = new SpannableString(essay);
-        title = (TextView) findViewById(R.id.title);
-        title.setText((String) objects.get(0).get("title"));
-                findAllWords();
+        essay.setText((String) objects.get(0).get("content"));
+        getSupportActionBar().setTitle((String) objects.get(0).get("title"));
+    }
+
+    enum Mode
+    {
+        spelling, reading, editing, synonym, analyzing;
+        Mode()
+        {
+
+        }
+
     }
 
     class MyClickableSpan extends ClickableSpan
