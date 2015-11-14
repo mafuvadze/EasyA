@@ -36,11 +36,6 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".EssayAnalysis"
-            android:label="Report"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
             android:name=".PictureActivity"
             android:label="Picture"
             android:screenOrientation="portrait" >
@@ -48,10 +43,6 @@
         <activity
             android:name=".DisplayEssay"
             android:label="Display" >
-        </activity>
-        <activity
-            android:name=".show"
-            android:label="@string/title_activity_show" >
         </activity>
     </application>
 
