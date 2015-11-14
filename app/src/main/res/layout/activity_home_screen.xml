@@ -1,0 +1,84 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="0dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="0dp"
+    tools:context="mafuvadze.anesu.com.codedayapp.HomeScreen"
+    android:orientation="vertical"
+    android:background="@color/LightGrey">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".8"
+        android:background="@mipmap/toolbar_bg">
+
+        <ImageView
+            android:id="@+id/profilePic"
+            android:layout_width="115dp"
+            android:layout_height="115dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/rounded_image_view" />
+
+
+        <TextView
+            android:id="@+id/user_name"
+            style="@style/profileBarText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/profilePic"
+            android:layout_centerHorizontal="true"
+            android:text="Username"
+            android:textColor="@color/Black" />
+
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="7dp"
+        android:layout_weight=".17"
+        android:background="@color/DodgerBlue"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/essays"
+            style="@style/secondbarText"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="1"
+            android:background="@drawable/profile_buttons"
+            android:text="Essays"
+            android:textColor="@color/DodgerBlue" />
+
+        <Button
+            android:id="@+id/statistics"
+            style="@style/secondbarText"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="1"
+            android:background="@drawable/profile_buttons"
+            android:text="Statistics"
+            android:textColor="@color/DodgerBlue" />
+
+
+    </LinearLayout>
+
+    <fragment
+        android:name="mafuvadze.anesu.com.codedayapp.Essays"
+        android:id="@+id/fragment_option"
+        android:background="@color/White"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+    </fragment>
+
+
+</LinearLayout>

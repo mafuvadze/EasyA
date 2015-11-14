@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/DodgerBlue"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".Login">
+
+    <EditText
+        android:id="@+id/enter_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:layout_above="@+id/enter_pass"
+        style="@style/loginText"
+        android:textColorHint="@color/White"
+        android:textColor="@color/White"
+        android:drawableRight="@mipmap/ic_email"
+        android:inputType="textEmailAddress" />
+
+    <EditText
+        android:id="@+id/enter_pass"
+        android:textColorHint="@color/White"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:hint="Password"
+        style="@style/loginText"
+        android:textColor="@color/White"
+        android:drawableRight="@mipmap/ic_password" />
+
+
+    <Button
+        android:background="@drawable/button_click"
+        android:textColor="@color/White"
+        android:id="@+id/login_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/enter_pass"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:text="Login"
+        style="@style/loginButton"/>
+
+    <TextView
+        android:id="@+id/signUp_txt"
+        android:textColor="@color/White"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Sign Up"
+        style="@style/signUpStyle"
+        android:layout_centerHorizontal="true"
+        />
+
+</RelativeLayout>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="400dp">
+
+        <RelativeLayout
+            android:background="@color/LightSteelBlue"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/vocab"
+                android:layout_centerHorizontal="true"
+                android:textSize="25sp"
+                android:textColor="@color/DodgerBlue"
+                android:text="Vocabulary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <fragment
+
+                android:id="@+id/frag"
+                android:name="mafuvadze.anesu.com.codedayapp.PieChart2"
+                android:layout_marginTop="10dp"
+                android:layout_below="@id/vocab"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                tools:layout="@layout/stats" />
+
+            <TextView
+                android:id="@+id/adv"
+                android:layout_below="@+id/frag"
+                android:text="Sophisticated words used: 67"
+                android:textColor="@color/Green"
+                android:textSize="23sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/trans"
+                android:layout_below="@+id/adv"
+                android:layout_marginTop="5sp"
+                android:text="Transition words used: 16"
+                android:textColor="@color/Orange"
+                android:textSize="23sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+
+            <ImageView
+                android:src="@mipmap/a"
+                android:id="@+id/grade"
+                android:layout_below="@+id/trans"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="30dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp" />
+
+        </RelativeLayout>
+
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

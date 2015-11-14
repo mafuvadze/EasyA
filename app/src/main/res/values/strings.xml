@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">CodeDayApp</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_sign_up">SignUp</string>
+    <string name="title_activity_home_screen">HomeScreen</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="create_request_txt">SUBMIT REQUEST</string>
+    <string name="title_activity_active_requests">ActiveRequests</string>
+    <string name="title_activity_user__requests">User_Requests</string>
+    <string name="user_requests_txt">User Requests</string>
+    <string name="something_wrong_error">Something went wrong</string>
+    <string name="please_wait_message">Please Wait...</string>
+    <string name="login_success_txt">Login successful</string>
+    <string name="login_failed_txt">Authentication failed</string>
+    <string name="usernameFormat">Your username must contain at least 4 characters</string>
+    <string name="incompleteFormat">Please complete the sign up form</string>
+    <string name="invalidEmail">Please provide a valid email address</string>
+    <string name="invalidPassword">Your passwords do not match</string>
+    <string name="passwordShort">Your password must contain at least 7 characters</string>
+    <string name="invalidZip">Please provide a valid zip code</string>
+    <string name="signupSucess">sign up complete</string>
+    <string name="signUpError">Sign up Error</string>
+    <string name="databaseConnectionFailed">failed to connect to database</string>
+    <string name="title_activity_copy_essay">CopyEssay</string>
+    <string name="title_activity_essay_analysis">EssayAnalysis</string>
+    <string name="title_activity_picture">PictureActivity</string>
+    <string name="title_activity_display_essay">DisplayEssay</string>
+    <string name="title_activity_show">show</string>
+</resources>

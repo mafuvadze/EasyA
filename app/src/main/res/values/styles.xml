@@ -1,0 +1,43 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="loginText">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="loginButton">
+        <item name="android:textSize">20sp</item>
+        <item name="android:background">#00cc33</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="signUpStyle">
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="profileBarText">
+        <item name="android:textSize">25sp</item>
+    </style>
+
+    <style name="requestsText">
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="datePostedText">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="secondbarText">
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="messageStyle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>
