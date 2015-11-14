@@ -8,21 +8,23 @@
     android:paddingRight="0dp"
     android:paddingTop="0dp"
     android:orientation="vertical"
-    android:backgroundTint="@color/LightGoldenrodYellow"
+    android:backgroundTint="@color/LightGreen"
     tools:context="mafuvadze.anesu.com.codedayapp.DisplayEssay">
 
+
     <TextView
+        android:scrollbars = "vertical"
         android:id="@+id/essay"
         android:textColor="@color/Black"
         android:textSize="17sp"
         android:layout_margin="4dp"
-        android:background="@color/LightGreen"
+        android:background="@color/LightGrey"
         android:layout_weight="8"
         android:layout_width="match_parent"
         android:layout_height="0dp" />
 
     <LinearLayout
-        android:background="@color/LightGoldenrodYellow"
+        android:background="@color/LightGreen"
         android:layout_weight="1"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -98,7 +100,7 @@
 
             <ImageView
                 android:id="@+id/syn"
-                android:src="@mipmap/ic_syn"
+                android:src="@mipmap/ic_synon"
                 android:layout_centerInParent="true"
                 android:layout_width="50dp"
                 android:layout_height="50dp" />
