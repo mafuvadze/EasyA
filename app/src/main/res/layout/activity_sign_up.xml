@@ -10,68 +10,94 @@
     tools:context="mafuvadze.anesu.com.codedayapp.SignUp">
 
     <android.support.v7.widget.CardView
-        android:elevation="7dp"
-        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:elevation="7dp">
 
         <RelativeLayout
-            android:background="@color/LightGrey"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@color/LightGrey">
 
-            <EditText
-                android:id="@+id/enter_username"
-                style="@style/loginText"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_username"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginTop="0dp"
-                android:hint="Username"
-                android:inputType="text"
-                android:textColor="@color/Black"
-                android:textColorHint="@color/Black" />
+                android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/create_email"
-                style="@style/loginText"
+                <EditText
+                    android:id="@+id/enter_username"
+                    style="@style/loginText"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="0dp"
+                    android:hint="Username"
+                    android:inputType="text"
+                    android:textColor="@color/Black"
+                    android:textColorHint="@color/Black" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_email"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_below="@id/enter_username"
-                android:hint="Email"
-                android:inputType="textEmailAddress"
-                android:textColor="@color/Black"
-                android:textColorHint="@color/Black" />
+                android:layout_height="wrap_content"
+                android:layout_below="@id/input_username">
 
+                <EditText
+                    android:id="@+id/create_email"
+                    style="@style/loginText"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:hint="Email"
+                    android:inputType="textEmailAddress"
+                    android:textColor="@color/Black"
+                    android:textColorHint="@color/Black" />
 
-            <EditText
-                android:id="@+id/create_pass"
-                style="@style/loginText"
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_pass"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_below="@id/create_email"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:textColor="@color/Black"
-                android:textColorHint="@color/Black" />
+                android:layout_height="wrap_content"
+                android:layout_below="@id/input_email">
 
-            <EditText
-                android:id="@+id/confirm_pass"
-                style="@style/loginText"
+                <EditText
+                    android:id="@+id/create_pass"
+                    style="@style/loginText"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:hint="Password"
+                    android:inputType="textPassword"
+                    android:textColor="@color/Black"
+                    android:textColorHint="@color/Black" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_confirm_pass"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_below="@id/create_pass"
-                android:hint="Confirm Password"
-                android:inputType="textPassword"
-                android:textColor="@color/Black"
-                android:textColorHint="@color/Black" />
+                android:layout_height="wrap_content"
+                android:layout_below="@id/input_pass">
+
+                <EditText
+                    android:id="@+id/confirm_pass"
+                    style="@style/loginText"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:hint="Confirm Password"
+                    android:inputType="textPassword"
+                    android:textColor="@color/Black"
+                    android:textColorHint="@color/Black" />
+            </android.support.design.widget.TextInputLayout>
 
             <Button
                 android:id="@+id/creat_account_btn"
-                android:layout_below="@id/confirm_pass"
                 style="@style/loginButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="false"
+                android:layout_below="@id/input_confirm_pass"
                 android:background="@drawable/button_click"
                 android:text="Sign Up"
                 android:textColor="@color/Black" />

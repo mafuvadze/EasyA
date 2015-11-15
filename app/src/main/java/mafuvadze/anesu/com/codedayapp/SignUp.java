@@ -1,6 +1,7 @@
 package mafuvadze.anesu.com.codedayapp;
 
 import android.content.Intent;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,6 +17,7 @@ import com.parse.SignUpCallback;
 public class SignUp extends AppCompatActivity {
 
     Button create_account_btn;
+    TextInputLayout user_lay, email_lay, pass_one_lay, pass_two_lay;
     EditText username, email, pass_one, pass_two;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +31,10 @@ public class SignUp extends AppCompatActivity {
         email = (EditText) findViewById(R.id.create_email);
         pass_one = (EditText) findViewById(R.id.create_pass);
         pass_two = (EditText) findViewById(R.id.confirm_pass);
+        user_lay = (TextInputLayout) findViewById(R.id.input_username);
+        email_lay = (TextInputLayout) findViewById(R.id.input_email);
+        pass_one_lay = (TextInputLayout) findViewById(R.id.input_pass);
+        pass_two_lay = (TextInputLayout) findViewById(R.id.input_confirm_pass);
 
         setOnCreateListener();
     }
@@ -53,6 +59,7 @@ public class SignUp extends AppCompatActivity {
 
     public void createNewAccount()
     {
+        boolean error = false;
         //possible errors
         String usernameFormat = getString(R.string.usernameFormat);
         String incompleteForm = getString(R.string.incompleteFormat);
@@ -61,83 +68,147 @@ public class SignUp extends AppCompatActivity {
         String passwordShort = getString(R.string.passwordShort);
 
         //Make sure that the sign up form is completely filled out
-        if(username.getText().toString().equals("") ||
-                email.getText().toString().equals("") ||
-                pass_one.getText().toString().equals("") ||
+        if(username.getText().toString().equals("") &&
+                email.getText().toString().equals("") &&
+                pass_one.getText().toString().equals("") &&
                 pass_two.getText().toString().equals(""))
         {
-            Toast.makeText(SignUp.this, incompleteForm, Toast.LENGTH_SHORT).show();
-            return;
+            error = true;
+        }
+
+
+        //check if username is empty
+        if(username.getText().toString().trim().equals(""))
+        {
+            user_lay.setError("Username cannot be empty");
+            error = true;
+        }
+        else
+        {
+            user_lay.setErrorEnabled(false);
+        }
+
+        //check if email is empty
+        if(email.getText().toString().trim().equals(""))
+        {
+            email_lay.setError("Email cannot be empty");
+            error = true;
+        }
+        else
+        {
+            email_lay.setErrorEnabled(false);
+        }
+
+        //check if passwords are empty
+        if(pass_one.getText().toString().trim().equals(""))
+        {
+            pass_one_lay.setError("Password cannot be empty");
+            error = true;
+        }
+        else
+        {
+            pass_one_lay.setErrorEnabled(false);
+        }
+
+        if(pass_two.getText().toString().trim().equals(""))
+        {
+            pass_two_lay.setError("Password cannot be empty");
+            error = true;
+        }
+        else
+        {
+            pass_two_lay.setErrorEnabled(false);
         }
 
         //validate username
         if(username.getText().toString().length() <= 3)
         {
-            Toast.makeText(SignUp.this, usernameFormat, Toast.LENGTH_SHORT).show();
-            return;
+            user_lay.setError(usernameFormat);
+            error = true;
+        }
+        else
+        {
+            user_lay.setErrorEnabled(false);
         }
 
         //validate email
         if(!email.getText().toString().contains("@") || !email.getText().toString().contains(".com"))
         {
-            Toast.makeText(SignUp.this, invalidEmail, Toast.LENGTH_SHORT).show();
-            return;
+            email_lay.setError(invalidEmail);
+            error = true;
+        }
+        else
+        {
+            email_lay.setErrorEnabled(false);
         }
 
         //validate password
         if(!pass_one.getText().toString().equals(pass_two.getText().toString()))
         {
-            Toast.makeText(SignUp.this, invalidPassword, Toast.LENGTH_SHORT).show();
-            return;
+            pass_one_lay.setError(invalidPassword);
+            pass_two_lay.setError(invalidPassword);
+            error = true;
+        }
+        else
+        {
+            pass_two_lay.setErrorEnabled(false);
+            pass_one_lay.setErrorEnabled(false);
         }
 
         if(pass_one.getText().toString().length() <= 6)
         {
-            Toast.makeText(SignUp.this, passwordShort, Toast.LENGTH_SHORT).show();
-            return;
+            pass_one_lay.setError(passwordShort);
+            error = true;
+        }
+        else
+        {
+            pass_one_lay.setErrorEnabled(false);
         }
 
         //if everything is all alright
         // Save new user data into Parse.com Data Storage
+        if(!error) {
+            //username and email are intentionally switched
+            ParseUser user = new ParseUser();
+            user.setUsername(email.getText().toString().toLowerCase());
+            user.setPassword(pass_one.getText().toString());
+            user.put("handle", username.getText().toString());
 
-        //username and email are intentionally switched
-        ParseUser user = new ParseUser();
-        user.setUsername(email.getText().toString().toLowerCase());
-        user.setPassword(pass_one.getText().toString());
-        user.put("handle", username.getText().toString());
-
-        user.signUpInBackground(new SignUpCallback()
-        {
-            @Override
-            public void done(com.parse.ParseException e)
+            //logout any account that might still be logged in
+            try
             {
-                if (e == null)
-                {
-                    try
-                    {
-                        // Show a simple Toast message upon successful registration
-                        Toast.makeText(getApplicationContext(),
-                                "account created",
-                                Toast.LENGTH_LONG).show();
+                ParseUser.getCurrentUser().logOut();
+            }
+            catch(Exception e)
+            {
 
-                        Intent intent = new Intent(SignUp.this, Login.class);
-                        startActivity(intent);
+            }
+
+            user.signUpInBackground(new SignUpCallback() {
+                @Override
+                public void done(com.parse.ParseException e) {
+                    if (e == null) {
+                        try {
+                            // Show a simple Toast message upon successful registration
+                            Toast.makeText(getApplicationContext(),
+                                    "account created",
+                                    Toast.LENGTH_LONG).show();
+
+                            Intent intent = new Intent(SignUp.this, Login.class);
+                            startActivity(intent);
+                            return;
+                        } catch (Exception error) {
+                            //left empty because of unexplained crash after sign up
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(),
+                                e.toString(), Toast.LENGTH_LONG)
+                                .show();
                         return;
                     }
-                    catch (Exception error)
-                    {
-                        //left empty because of unexplained crash after sign up
-                    }
                 }
-                else
-                {
-                    Toast.makeText(getApplicationContext(),
-                            "account creating failed", Toast.LENGTH_LONG)
-                            .show();
-                    return;
-                }
-            }
-        });
+            });
+        }
 
 
 

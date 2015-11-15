@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +27,7 @@ public class Login extends AppCompatActivity {
     Button login;
     TextView sign_up;
     ProgressDialog progress;
-    CardView holder;
+    RelativeLayout holder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +41,7 @@ public class Login extends AppCompatActivity {
         pass = (EditText) findViewById(R.id.enter_pass);
         login = (Button) findViewById(R.id.login_btn);
         sign_up = (TextView) findViewById(R.id.signUp_txt);
-        holder = (CardView) findViewById(R.id.cv);
+        holder = (RelativeLayout) findViewById(R.id.rl);
         setSignUpListener();
         setLoginListener();
     }
@@ -97,8 +98,8 @@ public class Login extends AppCompatActivity {
                                 startActivity(intent);
                             } catch (Exception error) {
                                 Toast.makeText(Login.this, "Authentication failed", Toast.LENGTH_SHORT).show();
-                                ObjectAnimator anim = ObjectAnimator.ofFloat(holder, "translationX", 50,0,-50,0,30,0,-30,0,10,-10,0);
-                                anim.setDuration(150);
+                                ObjectAnimator anim = ObjectAnimator.ofFloat(holder, "translationX", 100,0,-70,0,60,0,-60,0,60,0,-60,0);
+                                anim.setDuration(500);
                                 anim.start();
                             }
 
