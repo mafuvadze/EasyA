@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="mafuvadze.anesu.com.codedayapp" >
+    package="mafuvadze.anesu.com.codedayapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -9,11 +9,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".Login"
-            android:label="I Can Fix That"
-            android:screenOrientation="portrait" >
+            android:label="Login"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,27 +23,23 @@
         <activity
             android:name=".SignUp"
             android:label="Sign Up"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".HomeScreen"
             android:label="I Can Fix That"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".CopyEssay"
             android:label="Enter Essay"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".PictureActivity"
             android:label="Picture"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".DisplayEssay"
-            android:label="Display" >
-        </activity>
+            android:label="Display"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

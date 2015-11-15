@@ -11,7 +11,7 @@
 
     <style name="loginButton">
         <item name="android:textSize">20sp</item>
-        <item name="android:background">#00cc33</item>
+        <item name="android:background">@color/DodgerBlue</item>
         <item name="android:textStyle">bold</item>
     </style>
 

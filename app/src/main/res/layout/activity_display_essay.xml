@@ -12,26 +12,26 @@
 
 
     <TextView
-        android:visibility="gone"
+        android:visibility="visible"
         android:maxLines = "500"
         android:scrollbars = "vertical"
         android:id="@+id/essay"
         android:textColor="@color/Black"
         android:textSize="17.5sp"
-        android:layout_margin="4dp"
+        android:layout_margin="1dp"
         android:background="@color/LightGrey"
         android:layout_weight="8"
         android:layout_width="match_parent"
         android:layout_height="0dp" />
 
     <EditText
-        android:visibility="visible"
+        android:visibility="gone"
         android:textSize="17.5sp"
         android:background="@color/LightGrey"
         android:id="@+id/essay_edit"
         android:maxLines = "500"
         android:scrollbars = "vertical"
-        android:layout_margin="4dp"
+        android:layout_margin="1dp"
         android:layout_weight="8"
         android:layout_width="match_parent"
         android:layout_height="0dp" />
@@ -51,7 +51,7 @@
             android:id="@+id/mode_indicator"
             android:textColor="@color/Green"
             android:gravity="center_horizontal"
-            android:text="Editing Mode"
+            android:text="Reading Mode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -76,6 +76,21 @@
 
         </RelativeLayout>
 
+            <RelativeLayout
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/edit"
+                    android:src="@mipmap/ic_edit"
+                    android:layout_centerInParent="true"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp" />
+
+
+            </RelativeLayout>
+
         <RelativeLayout
             android:layout_weight="1"
             android:layout_width="0dp"
@@ -91,20 +106,6 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent">
-
-            <ImageView
-                android:id="@+id/edit"
-                android:src="@mipmap/ic_edit"
-                android:layout_centerInParent="true"
-                android:layout_width="40dp"
-                android:layout_height="40dp" />
-
-
-        </RelativeLayout>
 
         <RelativeLayout
             android:layout_weight="1"

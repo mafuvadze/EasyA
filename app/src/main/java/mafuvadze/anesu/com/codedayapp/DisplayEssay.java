@@ -67,7 +67,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
         initializeModeViews();
         recieveIntent();
-
+        setEditTextKeyboardListener();
 
 
     }
@@ -103,7 +103,6 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
     private void recieveIntent()
     {
-        String title = getIntent().getStringExtra("title");
         String subject = getIntent().getStringExtra("subject");
         ParseQuery query = new ParseQuery("essays");
         query.whereEqualTo("subject", subject);
@@ -115,8 +114,8 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         mode_indicator = (TextView) findViewById(R.id.mode_indicator);
         spell = (ImageView) findViewById(R.id.spell);
         read = (ImageView) findViewById(R.id.read);
+        read.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
         edit = (ImageView) findViewById(R.id.edit);
-        edit.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
         syn = (ImageView) findViewById(R.id.syn);
         analyze = (ImageView) findViewById(R.id.analyze);
 

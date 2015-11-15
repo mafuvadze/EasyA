@@ -1,69 +1,82 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/Teal"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="mafuvadze.anesu.com.codedayapp.SignUp"
-    android:background="@color/DodgerBlue">
+    tools:context="mafuvadze.anesu.com.codedayapp.SignUp">
 
-    <EditText
-        android:id="@+id/enter_username"
-        android:textColorHint="@color/White"
-        android:textColor="@color/White"
-        android:layout_marginTop="70dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/loginText"
-        android:hint="Username"
-        android:drawableRight="@mipmap/icon_person"
-        android:inputType="text"/>
+    <android.support.v7.widget.CardView
+        android:elevation="7dp"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-    <EditText
-        android:id="@+id/create_email"
-        android:textColorHint="@color/White"
-        android:textColor="@color/White"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/enter_username"
-        style="@style/loginText"
-        android:hint="Email"
-        android:drawableRight="@mipmap/ic_email"
-        android:inputType="textEmailAddress"/>
+        <RelativeLayout
+            android:background="@color/LightGrey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/enter_username"
+                style="@style/loginText"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="0dp"
+                android:hint="Username"
+                android:inputType="text"
+                android:textColor="@color/Black"
+                android:textColorHint="@color/Black" />
+
+            <EditText
+                android:id="@+id/create_email"
+                style="@style/loginText"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_below="@id/enter_username"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/Black"
+                android:textColorHint="@color/Black" />
 
 
-    <EditText
-        android:id="@+id/create_pass"
-        android:textColorHint="@color/White"
-        android:textColor="@color/White"
-        android:inputType="textPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/create_email"
-        style="@style/loginText"
-        android:hint="Password"
-        android:drawableRight="@mipmap/ic_password" />
+            <EditText
+                android:id="@+id/create_pass"
+                style="@style/loginText"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_below="@id/create_email"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:textColor="@color/Black"
+                android:textColorHint="@color/Black" />
 
-    <EditText
-        android:id="@+id/confirm_pass"
-        android:textColorHint="@color/White"
-        android:textColor="@color/White"
-        android:inputType="textPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/loginText"
-        android:hint="Confirm Password"
-        android:layout_below="@id/create_pass"
-        android:drawableRight="@mipmap/ic_password"/>
+            <EditText
+                android:id="@+id/confirm_pass"
+                style="@style/loginText"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_below="@id/create_pass"
+                android:hint="Confirm Password"
+                android:inputType="textPassword"
+                android:textColor="@color/Black"
+                android:textColorHint="@color/Black" />
 
-    <Button
-        android:id="@+id/creat_account_btn"
-        android:textColor="@color/White"
-        android:background="@drawable/button_click"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="Sign Up"
-        style="@style/loginButton"/>
+            <Button
+                android:id="@+id/creat_account_btn"
+                android:layout_below="@id/confirm_pass"
+                style="@style/loginButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="false"
+                android:background="@drawable/button_click"
+                android:text="Sign Up"
+                android:textColor="@color/Black" />
 
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
 </RelativeLayout>

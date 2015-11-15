@@ -1,10 +1,12 @@
 package mafuvadze.anesu.com.codedayapp;
 
+import android.animation.ObjectAnimator;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +26,7 @@ public class Login extends AppCompatActivity {
     Button login;
     TextView sign_up;
     ProgressDialog progress;
+    CardView holder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,10 +34,13 @@ public class Login extends AppCompatActivity {
         Parse.enableLocalDatastore(this);
         Parse.initialize(this, "eLdYeAiMGV0I4bb3zi8jJV2MyccqzYxozVA0ieT0", "QB5fo42Ybh5GvpoHBJXBZr9tXk2N6CpQqOUeadYn");
 
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         email = (EditText) findViewById(R.id.enter_email);
         pass = (EditText) findViewById(R.id.enter_pass);
         login = (Button) findViewById(R.id.login_btn);
         sign_up = (TextView) findViewById(R.id.signUp_txt);
+        holder = (CardView) findViewById(R.id.cv);
         setSignUpListener();
         setLoginListener();
     }
@@ -90,7 +96,10 @@ public class Login extends AppCompatActivity {
                                 Intent intent = new Intent(Login.this, HomeScreen.class);
                                 startActivity(intent);
                             } catch (Exception error) {
-                                Toast.makeText(Login.this, "authentication failed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Login.this, "Authentication failed", Toast.LENGTH_SHORT).show();
+                                ObjectAnimator anim = ObjectAnimator.ofFloat(holder, "translationX", 50,0,-50,0,30,0,-30,0,10,-10,0);
+                                anim.setDuration(150);
+                                anim.start();
                             }
 
                         } else {
