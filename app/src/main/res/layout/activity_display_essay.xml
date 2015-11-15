@@ -10,9 +10,12 @@
     android:orientation="vertical"
     tools:context="mafuvadze.anesu.com.codedayapp.DisplayEssay">
 
-
     <TextView
+        android:editable="true"
         android:visibility="visible"
+        android:clickable="true"
+        android:inputType="textMultiLine|textFilter"
+        android:typeface="monospace"
         android:maxLines = "500"
         android:scrollbars = "vertical"
         android:id="@+id/essay"
