@@ -9,12 +9,16 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
+import android.text.method.ScrollingMovementMethod;
 import android.text.style.ClickableSpan;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -47,7 +51,10 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 {
 
     ImageView spell, read, edit, syn, analyze;
+    SpannableString ss;
+    EditText essay_edit;
     TextView mode_indicator, essay;
+    String essay_txt;
     Mode current_mode = Mode.reading;
 
     @Override
@@ -56,12 +63,42 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         setContentView(R.layout.activity_display_essay);
 
         essay = (TextView) findViewById(R.id.essay);
+        essay_edit = (EditText) findViewById(R.id.essay_edit);
 
         initializeModeViews();
         recieveIntent();
 
 
 
+    }
+
+    private void setEditTextKeyboardListener()
+    {
+        essay_edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    spell.setVisibility(View.VISIBLE);
+                    read.setVisibility(View.VISIBLE);
+                    edit.setVisibility(View.VISIBLE);
+                    syn.setVisibility(View.VISIBLE);
+                    analyze.setVisibility(View.VISIBLE);
+
+
+                    return true;
+                }
+                else {
+                    spell.setVisibility(View.GONE);
+                    read.setVisibility(View.GONE);
+                    edit.setVisibility(View.GONE);
+                    syn.setVisibility(View.GONE);
+                    analyze.setVisibility(View.GONE);
+                }
+
+                return true;
+            }
+        });
     }
 
     private void recieveIntent()
@@ -79,6 +116,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         spell = (ImageView) findViewById(R.id.spell);
         read = (ImageView) findViewById(R.id.read);
         edit = (ImageView) findViewById(R.id.edit);
+        edit.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
         syn = (ImageView) findViewById(R.id.syn);
         analyze = (ImageView) findViewById(R.id.analyze);
 
@@ -87,6 +125,16 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.spelling;
                 mode_indicator.setText("Spelling Mode");
+
+                spell.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
+                read.setBackground(getResources().getDrawable(R.drawable.no_border));
+                edit.setBackground(getResources().getDrawable(R.drawable.no_border));
+                syn.setBackground(getResources().getDrawable(R.drawable.no_border));
+                analyze.setBackground(getResources().getDrawable(R.drawable.no_border));
+
+                essay.setText(essay_edit.getText().toString());
+                essay.setVisibility(View.VISIBLE);
+                essay_edit.setVisibility(View.GONE);
             }
         });
 
@@ -95,6 +143,16 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.reading;
                 mode_indicator.setText("Reading Mode");
+
+                read.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
+                spell.setBackground(getResources().getDrawable(R.drawable.no_border));
+                edit.setBackground(getResources().getDrawable(R.drawable.no_border));
+                syn.setBackground(getResources().getDrawable(R.drawable.no_border));
+                analyze.setBackground(getResources().getDrawable(R.drawable.no_border));
+
+                essay.setText(essay_edit.getText().toString());
+                essay.setVisibility(View.VISIBLE);
+                essay_edit.setVisibility(View.GONE);
             }
         });
 
@@ -103,6 +161,16 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.editing;
                 mode_indicator.setText("Editing Mode");
+
+                edit.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
+                read.setBackground(getResources().getDrawable(R.drawable.no_border));
+                spell.setBackground(getResources().getDrawable(R.drawable.no_border));
+                syn.setBackground(getResources().getDrawable(R.drawable.no_border));
+                analyze.setBackground(getResources().getDrawable(R.drawable.no_border));
+
+                essay_edit.setText(essay.getText().toString());
+                essay.setVisibility(View.GONE);
+                essay_edit.setVisibility(View.VISIBLE);
             }
         });
         syn.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +178,16 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.synonym;
                 mode_indicator.setText("Synonym Mode");
+
+                syn.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
+                read.setBackground(getResources().getDrawable(R.drawable.no_border));
+                edit.setBackground(getResources().getDrawable(R.drawable.no_border));
+                spell.setBackground(getResources().getDrawable(R.drawable.no_border));
+                analyze.setBackground(getResources().getDrawable(R.drawable.no_border));
+
+                essay.setText(essay_edit.getText().toString());
+                essay.setVisibility(View.VISIBLE);
+                essay_edit.setVisibility(View.GONE);
             }
         });
 
@@ -118,6 +196,16 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.analyzing;
                 mode_indicator.setText("Analyze Mode");
+
+                analyze.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
+                read.setBackground(getResources().getDrawable(R.drawable.no_border));
+                edit.setBackground(getResources().getDrawable(R.drawable.no_border));
+                syn.setBackground(getResources().getDrawable(R.drawable.no_border));
+                spell.setBackground(getResources().getDrawable(R.drawable.no_border));
+
+                essay.setText(essay_edit.getText().toString());
+                essay.setVisibility(View.VISIBLE);
+                essay_edit.setVisibility(View.GONE);
             }
         });
 
@@ -127,7 +215,50 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     @Override
     public void done(List<ParseObject> objects, ParseException e) {
         essay.setText((String) objects.get(0).get("content"));
+        essay.setMovementMethod(new ScrollingMovementMethod());
         getSupportActionBar().setTitle((String) objects.get(0).get("title"));
+        essay_txt = essay.getText().toString();
+        essay_edit.setText(essay.getText().toString());
+    }
+
+    public void findAllWords()
+    {
+        int current = 0;
+        int first = 0;
+        Map<Integer, Integer> start_end = new HashMap<>();
+        for(int i = 0; i < essay_txt.length(); i++)
+        {
+            if(isValidCharacter(essay_txt.toString().charAt(current)))
+            {
+                current++;
+            }
+            else
+            {
+                start_end.put(first, current + 1);
+                String word = essay_txt.substring(first, current);
+                first = current + 1;
+                current++;
+            }
+        }
+
+        for(int i : start_end.keySet())
+        {
+            ss.setSpan(new MyClickableSpan(essay_txt, i, start_end.get(i)), i, start_end.get(i), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+    }
+
+    public boolean isValidCharacter(char ch)
+    {
+        String str = ch + "";
+        char c = str.toLowerCase().charAt(0);
+        if(((int) 'a' <= (int) c) && (int) 'z' >= (int) c)
+        {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     enum Mode

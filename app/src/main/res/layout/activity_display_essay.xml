@@ -2,23 +2,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/LightGrey"
+    android:background="@color/LightGreen"
     android:paddingBottom="0dp"
     android:paddingLeft="0dp"
     android:paddingRight="0dp"
     android:paddingTop="0dp"
     android:orientation="vertical"
-    android:backgroundTint="@color/LightGreen"
     tools:context="mafuvadze.anesu.com.codedayapp.DisplayEssay">
 
 
     <TextView
+        android:visibility="gone"
+        android:maxLines = "500"
         android:scrollbars = "vertical"
         android:id="@+id/essay"
         android:textColor="@color/Black"
-        android:textSize="17sp"
+        android:textSize="17.5sp"
         android:layout_margin="4dp"
         android:background="@color/LightGrey"
+        android:layout_weight="8"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
+
+    <EditText
+        android:visibility="visible"
+        android:textSize="17.5sp"
+        android:background="@color/LightGrey"
+        android:id="@+id/essay_edit"
+        android:maxLines = "500"
+        android:scrollbars = "vertical"
+        android:layout_margin="4dp"
         android:layout_weight="8"
         android:layout_width="match_parent"
         android:layout_height="0dp" />
@@ -38,7 +51,7 @@
             android:id="@+id/mode_indicator"
             android:textColor="@color/Green"
             android:gravity="center_horizontal"
-            android:text="Read Mode"
+            android:text="Editing Mode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -100,10 +113,10 @@
 
             <ImageView
                 android:id="@+id/syn"
-                android:src="@mipmap/ic_synon"
+                android:src="@mipmap/ic_ss"
                 android:layout_centerInParent="true"
-                android:layout_width="50dp"
-                android:layout_height="50dp" />
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
 
 
         </RelativeLayout>
