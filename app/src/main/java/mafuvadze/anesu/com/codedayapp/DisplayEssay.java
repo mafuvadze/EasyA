@@ -1,8 +1,10 @@
 package mafuvadze.anesu.com.codedayapp;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
@@ -12,11 +14,17 @@ import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.textservice.SentenceSuggestionsInfo;
+import android.view.textservice.SpellCheckerSession;
+import android.view.textservice.SuggestionsInfo;
+import android.view.textservice.TextInfo;
+import android.view.textservice.TextServicesManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -48,7 +56,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DisplayEssay extends AppCompatActivity implements FindCallback<ParseObject>
+public class DisplayEssay extends AppCompatActivity implements FindCallback<ParseObject>, SpellCheckerSession.SpellCheckerSessionListener
 {
 
     ImageView spell, read, edit, syn, analyze;
@@ -57,6 +65,9 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     TextView mode_indicator, essay;
     String essay_txt;
     Mode current_mode = Mode.reading;
+    private SpellCheckerSession mScs;
+    private static final String TAG = DisplayEssay.class.getSimpleName();
+    private static final int NOT_A_LENGTH = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,39 +79,17 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
         initializeModeViews();
         recieveIntent();
-        setEditTextKeyboardListener();
 
+        final TextServicesManager tsm = (TextServicesManager) getSystemService(
+                Context.TEXT_SERVICES_MANAGER_SERVICE);
+        mScs = tsm.newSpellCheckerSession(null, null, this, true);
+
+        //test, delete later
+        fetchSuggestions("chickon");
 
     }
 
-    private void setEditTextKeyboardListener()
-    {
-        essay_edit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    spell.setVisibility(View.VISIBLE);
-                    read.setVisibility(View.VISIBLE);
-                    edit.setVisibility(View.VISIBLE);
-                    syn.setVisibility(View.VISIBLE);
-                    analyze.setVisibility(View.VISIBLE);
-
-
-                    return true;
-                }
-                else {
-                    spell.setVisibility(View.GONE);
-                    read.setVisibility(View.GONE);
-                    edit.setVisibility(View.GONE);
-                    syn.setVisibility(View.GONE);
-                    analyze.setVisibility(View.GONE);
-                }
-
-                return true;
-            }
-        });
-    }
 
     private void recieveIntent()
     {
@@ -261,6 +250,111 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         }
     }
 
+    @Override
+    public void onGetSuggestions(SuggestionsInfo[] arg0) {
+        Log.d(TAG, "onGetSuggestions");
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < arg0.length; ++i) {
+            dumpSuggestionsInfoInternal(sb, arg0[i], 0, NOT_A_LENGTH);
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //will write code later
+            }
+        });
+    }
+
+    @Override
+    public void onGetSentenceSuggestions(SentenceSuggestionsInfo[] arg0) {
+        if (!isSentenceSpellCheckSupported()) {
+            Log.e(TAG, "Sentence spell check is not supported on this platform, "
+                    + "but accidentially called.");
+            return;
+        }
+        Log.d(TAG, "onGetSentenceSuggestions");
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < arg0.length; ++i) {
+            final SentenceSuggestionsInfo ssi = arg0[i];
+            for (int j = 0; j < ssi.getSuggestionsCount(); ++j) {
+                dumpSuggestionsInfoInternal(
+                        sb, ssi.getSuggestionsInfoAt(j), ssi.getOffsetAt(j), ssi.getLengthAt(j));
+            }
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+               Toast.makeText(getBaseContext(), sb.toString(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
+    private boolean isSentenceSpellCheckSupported() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        final TextServicesManager tsm = (TextServicesManager) getSystemService(
+                Context.TEXT_SERVICES_MANAGER_SERVICE);
+        mScs = tsm.newSpellCheckerSession(null, null, this, true);
+
+        if (mScs != null) {
+            // Instantiate TextInfo for each query
+            // TextInfo can be passed a sequence number and a cookie number to identify the result
+            if (isSentenceSpellCheckSupported()) {
+                // Note that getSentenceSuggestions works on JB or later.
+                /*
+                Log.d(TAG, "Sentence spellchecking supported.");
+                mScs.getSentenceSuggestions(new TextInfo[] {new TextInfo("tgisis")}, 3);
+                mScs.getSentenceSuggestions(new TextInfo[] {new TextInfo(
+                        "I wold like to here form you")}, 3);
+                mScs.getSentenceSuggestions(new TextInfo[] {new TextInfo("hell othere")}, 3);
+            } else {
+                // Note that getSuggestions() is a deprecated API.
+                // It is recommended for an application running on Jelly Bean or later
+                // to call getSentenceSuggestions() only.
+                mScs.getSuggestions(new TextInfo("tgis"), 3);
+                mScs.getSuggestions(new TextInfo("hllo"), 3);
+                mScs.getSuggestions(new TextInfo("helloworld"), 3);
+                */
+            }
+        } else {
+            Log.e(TAG, "Couldn't obtain the spell checker service.");
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mScs != null) {
+            mScs.close();
+        }
+    }
+
+    private void dumpSuggestionsInfoInternal(
+            final StringBuilder sb, final SuggestionsInfo si, final int length, final int offset) {
+        // Returned suggestions are contained in SuggestionsInfo
+        final int len = si.getSuggestionsCount();
+        sb.append('\n');
+        for (int j = 0; j < len; ++j) {
+            if (j != 0) {
+                sb.append(", ");
+            }
+            sb.append(si.getSuggestionAt(j));
+        }
+        sb.append(" (" + len + ")");
+        if (length != NOT_A_LENGTH) {
+            sb.append(" length = " + length + ", offset = " + offset);
+        }
+    }
+
+    public void fetchSuggestions(String word)
+    {
+        mScs.getSentenceSuggestions(new TextInfo[] {new TextInfo(word)}, 3);
+    }
     enum Mode
     {
         spelling, reading, editing, synonym, analyzing;
