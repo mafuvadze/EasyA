@@ -56,14 +56,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DisplayEssay extends AppCompatActivity implements FindCallback<ParseObject>, SpellCheckerSession.SpellCheckerSessionListener
-{
+public class DisplayEssay extends AppCompatActivity implements FindCallback<ParseObject>, SpellCheckerSession.SpellCheckerSessionListener {
 
     ImageView spell, read, edit, syn, analyze;
-    SpannableString ss;
+    SpannableString ss, spelling_span;
     EditText essay_edit;
     TextView mode_indicator, essay;
     String essay_txt;
+    String[] spellSuggestions;
     Mode current_mode = Mode.reading;
     private SpellCheckerSession mScs;
     private static final String TAG = DisplayEssay.class.getSimpleName();
@@ -84,23 +84,17 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 Context.TEXT_SERVICES_MANAGER_SERVICE);
         mScs = tsm.newSpellCheckerSession(null, null, this, true);
 
-        //test, delete later
-        fetchSuggestions("chickon");
-
     }
 
 
-
-    private void recieveIntent()
-    {
+    private void recieveIntent() {
         String subject = getIntent().getStringExtra("subject");
         ParseQuery query = new ParseQuery("essays");
         query.whereEqualTo("subject", subject);
         query.findInBackground(this);
     }
 
-    private void initializeModeViews()
-    {
+    private void initializeModeViews() {
         mode_indicator = (TextView) findViewById(R.id.mode_indicator);
         spell = (ImageView) findViewById(R.id.spell);
         read = (ImageView) findViewById(R.id.read);
@@ -208,44 +202,46 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         getSupportActionBar().setTitle((String) objects.get(0).get("title"));
         essay_txt = essay.getText().toString();
         essay_edit.setText(essay.getText().toString());
+        ss = new SpannableString(essay_txt);
+        spelling_span = new SpannableString(essay_txt);
     }
 
-    public void findAllWords()
-    {
+    public void findAllWords() {
         int current = 0;
         int first = 0;
         Map<Integer, Integer> start_end = new HashMap<>();
-        for(int i = 0; i < essay_txt.length(); i++)
+
+        for (int i = 0; i < essay.getText().toString().length(); i++)
         {
-            if(isValidCharacter(essay_txt.toString().charAt(current)))
-            {
-                current++;
-            }
-            else
+            current = i;
+            if (!isValidCharacter(essay.getText().toString().charAt(i)))
             {
                 start_end.put(first, current + 1);
-                String word = essay_txt.substring(first, current);
+                //String word = essay_txt.substring(first, current);
                 first = current + 1;
-                current++;
             }
         }
 
-        for(int i : start_end.keySet())
-        {
-            ss.setSpan(new MyClickableSpan(essay_txt, i, start_end.get(i)), i, start_end.get(i), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        for (int i : start_end.keySet()) {
+
+            if(essay.getText().toString() == null)
+            {
+                Toast.makeText(this, "essay is null", Toast.LENGTH_LONG).show();
+            }
+                ss.setSpan(new MyClickableSpan(essay.getText().toString(), i, start_end.get(i)), i, start_end.get(i), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                fetchSuggestions(essay.getText().toString().substring(i, start_end.get(i)));
+                spelling_span.setSpan(new SpellCheckSpan(essay_txt, i, start_end.get(i), spellSuggestions), i, start_end.get(i), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
         }
 
     }
 
-    public boolean isValidCharacter(char ch)
-    {
+    public boolean isValidCharacter(char ch) {
         String str = ch + "";
         char c = str.toLowerCase().charAt(0);
-        if(((int) 'a' <= (int) c) && (int) 'z' >= (int) c)
-        {
+        if (((int) 'a' <= (int) c) && (int) 'z' >= (int) c) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -284,7 +280,8 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-               Toast.makeText(getBaseContext(), sb.toString(), Toast.LENGTH_LONG).show();
+                String[] suggestedWords = sb.toString().split(", ");
+                spellSuggestions = suggestedWords;
             }
         });
     }
@@ -300,30 +297,6 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         final TextServicesManager tsm = (TextServicesManager) getSystemService(
                 Context.TEXT_SERVICES_MANAGER_SERVICE);
         mScs = tsm.newSpellCheckerSession(null, null, this, true);
-
-        if (mScs != null) {
-            // Instantiate TextInfo for each query
-            // TextInfo can be passed a sequence number and a cookie number to identify the result
-            if (isSentenceSpellCheckSupported()) {
-                // Note that getSentenceSuggestions works on JB or later.
-                /*
-                Log.d(TAG, "Sentence spellchecking supported.");
-                mScs.getSentenceSuggestions(new TextInfo[] {new TextInfo("tgisis")}, 3);
-                mScs.getSentenceSuggestions(new TextInfo[] {new TextInfo(
-                        "I wold like to here form you")}, 3);
-                mScs.getSentenceSuggestions(new TextInfo[] {new TextInfo("hell othere")}, 3);
-            } else {
-                // Note that getSuggestions() is a deprecated API.
-                // It is recommended for an application running on Jelly Bean or later
-                // to call getSentenceSuggestions() only.
-                mScs.getSuggestions(new TextInfo("tgis"), 3);
-                mScs.getSuggestions(new TextInfo("hllo"), 3);
-                mScs.getSuggestions(new TextInfo("helloworld"), 3);
-                */
-            }
-        } else {
-            Log.e(TAG, "Couldn't obtain the spell checker service.");
-        }
     }
 
     @Override
@@ -347,76 +320,57 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         }
         sb.append(" (" + len + ")");
         if (length != NOT_A_LENGTH) {
-            sb.append(" length = " + length + ", offset = " + offset);
+            //sb.append(" length = " + length + ", offset = " + offset);
         }
     }
 
-    public void fetchSuggestions(String word)
-    {
-        mScs.getSentenceSuggestions(new TextInfo[] {new TextInfo(word)}, 3);
-    }
-    enum Mode
-    {
-        spelling, reading, editing, synonym, analyzing;
-        Mode()
+    public void fetchSuggestions(String word) {
+        try {
+            mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(word)}, 6);
+        }catch(Exception e)
         {
-
+            Toast.makeText(this, word + "not searcheable", Toast.LENGTH_LONG).show();
         }
-
     }
 
-    class MyClickableSpan extends ClickableSpan
-    {
-        String essay;
+    enum Mode {
+        spelling, reading, editing, synonym, analyzing;
+
+        Mode() {
+        }
+    }
+
+    class MyClickableSpan extends ClickableSpan {
+        String essay, response;
         int start, end;
         String word;
-        MyClickableSpan(String essay, int start, int end)
-        {
+
+        MyClickableSpan(String essay, int start, int end) {
             this.essay = essay;
             this.start = start;
             this.end = end;
-            word = essay.substring(start, end-1);
+            word = essay.substring(start, end);
 
         }
+
         @Override
         public void onClick(View widget) {
+            HttpRequest request = new HttpRequest(DisplayEssay.this);
             String url = "http://api.wordnik.com:80/v4/word.json/" + word.trim() + "/relatedWords?useCanonical=false&relationshipTypes=synonym&limitPerRelationshipType=10&api_key=7c6ee010f214172ad52050ab7c70d570e9140f374466d026f";
-            RequestQueue queue = Volley.newRequestQueue(DisplayEssay.this);
-            StringRequest request = new StringRequest(Request.Method.GET, url.toString().trim(), new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    try {
-                        JSONArray array = new JSONArray(response);
-                        JSONObject obj = array.getJSONObject(0);
-                        JSONArray words = obj.getJSONArray("words");
-                        Dialog dialog = new Dialog(DisplayEssay.this);
-                        dialog.setTitle("Suggestions");
-                        dialog.setContentView(R.layout.word_suggestion_layout);
-                        ListView list = (ListView) dialog.findViewById(R.id.wordList);
-                        String[] w = new String[words.length()];
-                        for(int i = 0; i < words.length(); i++)
-                        {
-                            w[i] = (String) words.get(i);
-                        }
+            request.fetchStringResponse(url);
+            response = request.getStringResponse();
 
-                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(DisplayEssay.this, android.R.layout.simple_list_item_1, w);
-                        list.setAdapter(adapter);
-                        dialog.show();
+            Dialog dialog = new Dialog(DisplayEssay.this);
+            dialog.setTitle("Suggestions");
+            dialog.setContentView(R.layout.word_suggestion_layout);
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(DisplayEssay.this, error.toString(), Toast.LENGTH_LONG).show();
-                        }
-                    });
+            ListView list = (ListView) dialog.findViewById(R.id.wordList);
 
-            queue.add(request);
-
+            ParseJSONRequest parseJSONRequest = new ParseJSONRequest(DisplayEssay.this);
+            String[] suggestedWords = parseJSONRequest.getWordsArray(response);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(DisplayEssay.this, android.R.layout.simple_list_item_1, suggestedWords);
+            list.setAdapter(adapter);
+            dialog.show();
         }
 
         @Override
@@ -425,4 +379,34 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             ds.setUnderlineText(false);
         }
     }
+
+    class SpellCheckSpan extends ClickableSpan {
+        String essay, word;
+        int start, end;
+        String[] suggestions;
+
+        SpellCheckSpan(String essay, int start, int end, String[] suggestions) {
+            this.essay = essay;
+            this.start = start;
+            this.end = end;
+            this.suggestions = suggestions;
+            word = essay.substring(start, end);
+        }
+
+        @Override
+        public void onClick(View widget) {
+            if (suggestions != null && suggestions.toString() != "[]") {
+                Dialog dialog = new Dialog(DisplayEssay.this);
+                dialog.setTitle("Did you mean...");
+                dialog.setContentView(R.layout.word_suggestion_layout);
+
+                ListView list = (ListView) dialog.findViewById(R.id.wordList);
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(DisplayEssay.this, android.R.layout.simple_list_item_1, suggestions);
+                list.setAdapter(adapter);
+                dialog.show();
+            }
+        }
+    }
 }
+
