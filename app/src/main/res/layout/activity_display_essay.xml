@@ -29,6 +29,7 @@
 
     <EditText
         android:visibility="gone"
+        android:layout_gravity="top|left"
         android:textSize="17.5sp"
         android:background="@color/LightGrey"
         android:id="@+id/essay_edit"

@@ -1,5 +1,6 @@
 package mafuvadze.anesu.com.codedayapp;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -20,64 +21,77 @@ import com.parse.SaveCallback;
 
 public class CopyEssay extends AppCompatActivity {
 
-    EditText essay_txt;
+    EditText essay_txt, title, subject;
     Button btn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_copy_essay);
-        /*
 
-        essay_txt = (EditText) findViewById(R.id.editText);
-        btn = (Button) findViewById(R.id.submit_btn);
-        btn.setOnClickListener(new View.OnClickListener() {
+        initializeViews();
+    }
+
+    private void submitEssay()
+    {
+        final ProgressDialog progress = new ProgressDialog(CopyEssay.this);
+        progress.setMessage(getString(R.string.please_wait_message));
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setCancelable(false);
+        progress.show();
+        String t = title.getText().toString();
+        String s = subject.getText().toString();
+        ParseObject essay = new ParseObject("essays");
+        essay.put("title", t);
+        essay.put("subject", s);
+        essay.put("content", essay_txt.getText().toString());
+        essay.saveInBackground(new SaveCallback() {
             @Override
-            public void onClick(View v) {
-                final Dialog dialog = new Dialog(CopyEssay.this);
-                dialog.setTitle("Upload Essay");
-                dialog.setCanceledOnTouchOutside(false);
-                dialog.setContentView(R.layout.create_essay);
-                dialog.show();
-
-                final EditText title  = (EditText) dialog.findViewById(R.id.title);
-                final EditText subject  = (EditText) dialog.findViewById(R.id.subject);
-                Button enter_btn = (Button) dialog.findViewById(R.id.submit);
-
-                enter_btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final ProgressDialog progress = new ProgressDialog(CopyEssay.this);
-                        progress.setMessage(getString(R.string.please_wait_message));
-                        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                        progress.setCancelable(false);
-                        progress.show();
-                        dialog.dismiss();
-                        String t = title.getText().toString();
-                        String s = subject.getText().toString();
-                        ParseObject essay = new ParseObject("essays");
-                        essay.put("title", t);
-                        essay.put("subject", s);
-                        essay.put("content", essay_txt.getText().toString());
-                        essay.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(com.parse.ParseException e) {
-                                if (e != null) {
-                                    e.printStackTrace();
-                                }
-                                else
-                                {
-                                    progress.dismiss();
-                                    Toast.makeText(CopyEssay.this, "Essay uploaded", Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(CopyEssay.this, HomeScreen.class);
-                                    startActivity(intent);
-                                }
-                            }
-
-                        });
-                    }
-                });
+            public void done(com.parse.ParseException e) {
+                if (e != null) {
+                    e.printStackTrace();
+                }
+                else
+                {
+                    progress.dismiss();
+                    Toast.makeText(CopyEssay.this, "Essay uploaded", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(CopyEssay.this, HomeScreen.class);
+                    startActivity(intent);
+                }
             }
+
         });
-        */
+    }
+
+    private void initializeViews()
+    {
+        essay_txt =(EditText) findViewById(R.id.essay);
+        title =(EditText) findViewById(R.id.title);
+        subject =(EditText) findViewById(R.id.subject);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_copy_essay, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        else if(id == R.id.confirm)
+        {
+            submitEssay();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CodeDayApp</string>
 
+    <string name="app_name">CodeDayApp</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_sign_up">SignUp</string>
@@ -28,4 +29,6 @@
     <string name="title_activity_picture">PictureActivity</string>
     <string name="title_activity_display_essay">DisplayEssay</string>
     <string name="title_activity_show">show</string>
+    <string name="title_activity_del">Del</string>
+
 </resources>

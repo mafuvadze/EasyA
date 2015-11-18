@@ -46,12 +46,15 @@
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_TEXT_SERVICE" >
-            <intent-filter >
+            <intent-filter>
                 <action android:name="android.service.textservice.SpellCheckerService" />
             </intent-filter>
-
-
         </service>
+
+        <activity
+            android:name=".Del"
+            android:label="@string/title_activity_del" >
+        </activity>
     </application>
 
 </manifest>

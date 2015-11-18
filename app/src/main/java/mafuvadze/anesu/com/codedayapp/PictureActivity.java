@@ -103,56 +103,6 @@ public class PictureActivity extends AppCompatActivity implements Response.Liste
 
     @Override
     public void onResponse(String response) {
-        try {
-            JSONObject obj = new JSONObject(response);
-            JSONArray array = obj.getJSONArray("text_block");
-            JSONObject o = array.getJSONObject(0);
-            final String text = (String) o.get("text");
 
-            final Dialog dialog = new Dialog(this);
-            dialog.setTitle("Upload Essay");
-            dialog.setCanceledOnTouchOutside(false);
-            dialog.setContentView(R.layout.create_essay);
-            dialog.show();
-
-            final EditText title  = (EditText) dialog.findViewById(R.id.title);
-            final EditText subject  = (EditText) dialog.findViewById(R.id.subject);
-            final Button submit = (Button) dialog.findViewById(R.id.submit);
-            submit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final ProgressDialog progress = new ProgressDialog(PictureActivity.this);
-                    progress.setMessage(getString(R.string.please_wait_message));
-                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                    progress.setCancelable(false);
-                    progress.show();
-                    dialog.dismiss();
-                    String t = title.getText().toString();
-                    String s = subject.getText().toString();
-                    ParseObject essay = new ParseObject("essays");
-                    essay.put("title", t);
-                    essay.put("subject", s);
-                    essay.put("content", text);
-                    essay.saveInBackground(new SaveCallback() {
-                        @Override
-                        public void done(com.parse.ParseException e) {
-                            if (e != null) {
-                                e.printStackTrace();
-                            } else {
-                                progress.dismiss();
-                                Toast.makeText(PictureActivity.this, "Essay uploaded", Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(PictureActivity.this, HomeScreen.class);
-                                startActivity(intent);
-                            }
-                        }
-
-                    });
-                }
-            });
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 }
