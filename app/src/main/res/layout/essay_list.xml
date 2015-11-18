@@ -6,7 +6,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/LightGrey"
+        android:background="@color/DarkGray"
         android:layout_margin="5dp">
 
         <ListView
@@ -29,8 +29,8 @@
                 fab:menu_animationDelayPerItem="50"
                 fab:menu_backgroundColor="@android:color/transparent"
                 fab:menu_buttonSpacing="0dp"
-                fab:menu_colorNormal="@color/red"
-                fab:menu_colorPressed="@color/blue"
+                fab:menu_colorNormal="@color/Teal"
+                fab:menu_colorPressed="@color/LightGreen"
                 fab:menu_colorRipple="#99FFFFFF"
                 fab:menu_fab_size="normal"
                 fab:menu_icon="@drawable/fab_add"

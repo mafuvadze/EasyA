@@ -26,6 +26,7 @@ public class CopyEssay extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_copy_essay);
+        /*
 
         essay_txt = (EditText) findViewById(R.id.editText);
         btn = (Button) findViewById(R.id.submit_btn);
@@ -77,6 +78,6 @@ public class CopyEssay extends AppCompatActivity {
                 });
             }
         });
+        */
     }
-
 }

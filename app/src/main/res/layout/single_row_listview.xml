@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="100dp"
     android:orientation="vertical">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="80dp">
+        android:layout_height="100dp">
 
         <RelativeLayout
-            android:background="@color/White"
+            android:background="@color/LightGrey"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -23,7 +23,7 @@
                 android:textColor="@color/DodgerBlue"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
-                android:textSize="15sp"
+                android:textSize="17sp"
                 android:layout_toRightOf="@+id/icon"
                 android:id="@+id/title"
                 android:text="Essay Title"
@@ -33,8 +33,8 @@
             <TextView
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="5dp"
-                android:textColor="@color/Orange"
-                android:textSize="12sp"
+                android:textColor="@color/teal"
+                android:textSize="14sp"
                 android:layout_toRightOf="@+id/icon"
                 android:layout_below="@+id/title"
                 android:id="@+id/subject"

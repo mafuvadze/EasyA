@@ -8,14 +8,14 @@
     android:paddingTop="0dp"
     tools:context="mafuvadze.anesu.com.codedayapp.HomeScreen"
     android:orientation="vertical"
-    android:background="@color/LightGrey">
+    android:background="@color/DarkGray">
 
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight=".65"
-        android:background="@mipmap/toolbar_bg">
+        android:layout_weight=".8"
+        android:background="@mipmap/profile_bg">
 
         <ImageView
             android:id="@+id/profilePic"
@@ -33,7 +33,7 @@
             android:layout_below="@id/profilePic"
             android:layout_centerHorizontal="true"
             android:text="Username"
-            android:textColor="@color/Black" />
+            android:textColor="@color/White" />
 
 
     </RelativeLayout>
