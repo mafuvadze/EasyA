@@ -49,17 +49,24 @@ public class CopyEssay extends AppCompatActivity {
             public void done(com.parse.ParseException e) {
                 if (e != null) {
                     e.printStackTrace();
-                }
-                else
-                {
+                } else {
                     progress.dismiss();
-                    Toast.makeText(CopyEssay.this, "Essay uploaded", Toast.LENGTH_LONG).show();
+                    displaySnackbar();
                     Intent intent = new Intent(CopyEssay.this, HomeScreen.class);
                     startActivity(intent);
                 }
             }
 
         });
+    }
+
+    private void displaySnackbar()
+    {
+        View parentView = (View) title.getParent();
+        Snackbar.make(parentView
+                , title.getText().toString() + " succesfully uploaded"
+                , Snackbar.LENGTH_LONG)
+                .show();
     }
 
     private void initializeViews()
