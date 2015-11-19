@@ -75,6 +75,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         setContentView(R.layout.activity_display_essay);
 
         essay = (TextView) findViewById(R.id.essay);
+        essay.setMovementMethod(LinkMovementMethod.getInstance());
         essay_edit = (EditText) findViewById(R.id.essay_edit);
 
         initializeModeViews();
@@ -161,6 +162,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.synonym;
                 mode_indicator.setText("Synonym Mode");
+                essay.setText(ss);
 
                 syn.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
                 read.setBackground(getResources().getDrawable(R.drawable.no_border));
@@ -168,7 +170,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 spell.setBackground(getResources().getDrawable(R.drawable.no_border));
                 analyze.setBackground(getResources().getDrawable(R.drawable.no_border));
 
-                essay.setText(essay_edit.getText().toString());
+                //essay.setText(essay_edit.getText().toString());
                 essay.setVisibility(View.VISIBLE);
                 essay_edit.setVisibility(View.GONE);
             }
@@ -204,6 +206,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         essay_edit.setText(essay.getText().toString());
         ss = new SpannableString(essay_txt);
         spelling_span = new SpannableString(essay_txt);
+        findAllWords();
     }
 
     public void findAllWords() {
@@ -216,27 +219,44 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             current = i;
             if (!isValidCharacter(essay.getText().toString().charAt(i)))
             {
-                start_end.put(first, current + 1);
+                start_end.put(first, current);
                 //String word = essay_txt.substring(first, current);
                 first = current + 1;
             }
         }
 
         for (int i : start_end.keySet()) {
+            int start = i, end = start_end.get(i);
 
             if(essay.getText().toString() == null)
             {
                 Toast.makeText(this, "essay is null", Toast.LENGTH_LONG).show();
             }
-                ss.setSpan(new MyClickableSpan(essay.getText().toString(), i, start_end.get(i)), i, start_end.get(i), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                fetchSuggestions(essay.getText().toString().substring(i, start_end.get(i)));
-                spelling_span.setSpan(new SpellCheckSpan(essay_txt, i, start_end.get(i), spellSuggestions), i, start_end.get(i), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            else {
+                String word = essay.getText().toString().substring(start, end);
+                if(word.trim() == "")
+                {
+                    continue;
+                }
+                Log.i("word", word);
+                ss.setSpan(new MyClickableSpan(essay.getText().toString(), start, end), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                //fetchSuggestions(word.trim());
+                //spelling_span.setSpan(new SpellCheckSpan(essay_txt, start, end, spellSuggestions), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            }
 
         }
 
     }
 
     public boolean isValidCharacter(char ch) {
+        if(ch == '.' || ch == ',' || ch == ' ')
+        {
+           return false;
+        }
+        if(ch == '\'')
+        {
+            return true;
+        }
         String str = ch + "";
         char c = str.toLowerCase().charAt(0);
         if (((int) 'a' <= (int) c) && (int) 'z' >= (int) c) {
@@ -329,7 +349,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(word)}, 6);
         }catch(Exception e)
         {
-            Toast.makeText(this, word + "not searcheable", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, word + e.toString(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -350,18 +370,21 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             this.start = start;
             this.end = end;
             word = essay.substring(start, end);
+            word = word.trim();
+            Log.i("wordie", word);
 
         }
 
         @Override
         public void onClick(View widget) {
+            Log.i("click",word + " was clicked");
             HttpRequest request = new HttpRequest(DisplayEssay.this);
-            String url = "http://api.wordnik.com:80/v4/word.json/" + word.trim() + "/relatedWords?useCanonical=false&relationshipTypes=synonym&limitPerRelationshipType=10&api_key=7c6ee010f214172ad52050ab7c70d570e9140f374466d026f";
+            String url = "http://api.wordnik.com:80/v4/word.json/" + word.toLowerCase() + "/relatedWords?useCanonical=false&relationshipTypes=synonym&limitPerRelationshipType=10&api_key=7c6ee010f214172ad52050ab7c70d570e9140f374466d026f";
             request.fetchStringResponse(url);
             response = request.getStringResponse();
 
             Dialog dialog = new Dialog(DisplayEssay.this);
-            dialog.setTitle("Suggestions");
+            dialog.setTitle("Synonyms");
             dialog.setContentView(R.layout.word_suggestion_layout);
 
             ListView list = (ListView) dialog.findViewById(R.id.wordList);
