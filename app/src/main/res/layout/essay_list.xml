@@ -6,10 +6,11 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#B4CDCD"
+        android:background="@color/LightGrey"
         android:layout_margin="5dp">
 
         <ListView
+            android:background="#B4CDCD"
             android:id="@+id/essay_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
