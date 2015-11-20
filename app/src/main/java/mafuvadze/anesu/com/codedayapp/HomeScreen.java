@@ -51,10 +51,15 @@ public class HomeScreen extends AppCompatActivity {
         essays_btn.setTextColor(Color.WHITE);
         essayFragShown = true;
 
-        //check if it's first time seeing activity (jus loged in)
-        if(getIntent().getExtras().get("login") != null)
+        //check if it's first time seeing activity (just logged in)
+        try {
+            if (getIntent().getExtras().get("login") != null) {
+                Snackbar.make((View) username.getParent(), "Welcome " + ParseUser.getCurrentUser().get("handle"), Snackbar.LENGTH_LONG).show();
+            }
+        }
+        catch(Exception e)
         {
-            Snackbar.make((View) username.getParent(), "Welcome " + ParseUser.getCurrentUser().get("handle"), Snackbar.LENGTH_LONG).show();
+
         }
 
         setProfilePicListener();
@@ -103,24 +108,25 @@ public class HomeScreen extends AppCompatActivity {
                 }
             });
         }
+        else
+        {
+            profile_pic.setImageResource(R.mipmap.ic_launcher);
+        }
     }
 
     public void setEssaysListener()
     {
         essays_btn.setOnClickListener(
-                new View.OnClickListener()
-                {
+                new View.OnClickListener() {
                     @Override
-                    public void onClick(View view)
-                    {
+                    public void onClick(View view) {
                         essays_btn.setBackgroundColor(Color.argb(255, 51, 153, 255));
                         essays_btn.setTextColor(Color.WHITE);
 
                         stats_btn.setBackgroundColor(Color.WHITE);
                         stats_btn.setTextColor(Color.argb(255, 51, 153, 255));
 
-                        if(!essayFragShown)
-                        {
+                        if (!essayFragShown) {
                             changeFragment(true);
                             essayFragShown = true;
                         }
@@ -193,13 +199,28 @@ public class HomeScreen extends AppCompatActivity {
 
             profile_pic.setImageBitmap(pp);
             profile_pic.setRotation(-90);
-
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            byte[] byte_data = stream.toByteArray();
+            saveToParse(byte_data);
 
 
         }
         catch (Exception e)
         {
 
+        }
+    }
+
+    private void saveToParse(byte[] byte_data)
+    {
+        ParseFile pf = new ParseFile("profile_pic.png", byte_data);
+        pf.saveInBackground();
+        ParseUser.getCurrentUser().put("profile_pic", pf);
+        try {
+            ParseUser.getCurrentUser().saveInBackground().waitForCompletion();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

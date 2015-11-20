@@ -9,10 +9,10 @@
         android:background="@color/LightGrey"
         android:layout_margin="5dp">
 
-        <ListView
+        <com.baoyz.swipemenulistview.SwipeMenuListView
             android:id="@+id/essay_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content" />
 
         <RelativeLayout
             android:layout_width="match_parent"

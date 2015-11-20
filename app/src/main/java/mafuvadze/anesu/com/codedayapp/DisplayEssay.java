@@ -83,9 +83,9 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
 
     private void recieveIntent() {
-        String subject = getIntent().getStringExtra("subject");
+        String title = getIntent().getStringExtra("title");
         ParseQuery query = new ParseQuery("essays");
-        query.whereEqualTo("subject", subject);
+        query.whereEqualTo("title", title);
         query.findInBackground(this);
     }
 

@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.clans.fab.FloatingActionMenu;
 import com.parse.ParseObject;
 
 import java.util.ArrayList;
@@ -22,16 +23,18 @@ public class ListViewAdapter extends ArrayAdapter<String> {
     Context context;
     List<ParseObject> essays = new ArrayList<>();
     int prev = 0;
-    public ListViewAdapter(Context context, int resource, List<ParseObject> essays) {
+    FloatingActionMenu menu;
+
+    public ListViewAdapter(Context context, int resource, List<ParseObject> essays, FloatingActionMenu menu) {
         super(context, resource);
         this.context = context;
         this.essays = essays;
+        this.menu = menu;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(convertView == null)
-        {
+        if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.single_row_listview, parent, false);
         }
 
@@ -40,12 +43,10 @@ public class ListViewAdapter extends ArrayAdapter<String> {
         ImageView icon = (ImageView) convertView.findViewById(R.id.icon);
 
         String grade = essays.get(position).getString("grade");
-        if(grade == null)
-        {
+        if (grade == null) {
             grade = "B";
         }
-        switch (grade)
-        {
+        switch (grade) {
             case "A":
                 icon.setImageResource(R.mipmap.a);
                 break;
@@ -55,7 +56,8 @@ public class ListViewAdapter extends ArrayAdapter<String> {
             case "C":
                 icon.setImageResource(R.mipmap.c);
                 break;
-                default: break;
+            default:
+                break;
         }
 
 
@@ -63,7 +65,14 @@ public class ListViewAdapter extends ArrayAdapter<String> {
         subject.setText(essays.get(position).getString("subject"));
         final String essay = essays.get(position).getString("content");
 
-        ObjectAnimator anim = ObjectAnimator.ofFloat(convertView, "translationY",prev > position ? -250:250, 0);
+        ObjectAnimator anim = ObjectAnimator.ofFloat(convertView, "translationY", prev > position ? -250 : 250, 0);
+
+        if (prev < position && position >= 4) {
+            menu.hideMenu(true);
+        } else {
+            menu.showMenu(true);
+        }
+
         anim.setDuration(400);
         anim.start();
 
