@@ -68,7 +68,7 @@ public class PictureActivity extends AppCompatActivity implements Response.Liste
     private void compressImage()
     {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        Bitmap.createScaledBitmap(pic, 300, 450, false).compress(Bitmap.CompressFormat.PNG, 100, stream);
+        Bitmap.createScaledBitmap(pic, 400, 600, false).compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] byte_data = stream.toByteArray();
         saveToParse(byte_data);
     }

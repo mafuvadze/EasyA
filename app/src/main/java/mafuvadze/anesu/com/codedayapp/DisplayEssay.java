@@ -45,13 +45,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +69,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         setContentView(R.layout.activity_display_essay);
 
         essay = (TextView) findViewById(R.id.essay);
-        essay.setMovementMethod(LinkMovementMethod.getInstance());
+        essay.setHighlightColor(Color.TRANSPARENT);
         essay_edit = (EditText) findViewById(R.id.essay_edit);
 
         initializeModeViews();
@@ -162,7 +156,6 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.synonym;
                 mode_indicator.setText("Synonym Mode");
-                essay.setText(ss);
 
                 syn.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
                 read.setBackground(getResources().getDrawable(R.drawable.no_border));
@@ -173,6 +166,9 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 //essay.setText(essay_edit.getText().toString());
                 essay.setVisibility(View.VISIBLE);
                 essay_edit.setVisibility(View.GONE);
+
+                essay.setText(ss);
+                essay.setMovementMethod(LinkMovementMethod.getInstance());
             }
         });
 
@@ -363,37 +359,57 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     class MyClickableSpan extends ClickableSpan {
         String essay, response;
         int start, end;
-        String word;
+        final String word;
 
         MyClickableSpan(String essay, int start, int end) {
             this.essay = essay;
             this.start = start;
             this.end = end;
-            word = essay.substring(start, end);
-            word = word.trim();
+            word = essay.substring(start, end).trim();
             Log.i("wordie", word);
 
         }
 
         @Override
         public void onClick(View widget) {
-            Log.i("click",word + " was clicked");
-            HttpRequest request = new HttpRequest(DisplayEssay.this);
-            String url = "http://api.wordnik.com:80/v4/word.json/" + word.toLowerCase() + "/relatedWords?useCanonical=false&relationshipTypes=synonym&limitPerRelationshipType=10&api_key=7c6ee010f214172ad52050ab7c70d570e9140f374466d026f";
-            request.fetchStringResponse(url);
-            response = request.getStringResponse();
-
-            Dialog dialog = new Dialog(DisplayEssay.this);
-            dialog.setTitle("Synonyms");
+            final Dialog dialog = new Dialog(DisplayEssay.this);
+            dialog.setTitle("Synonyms for " + word);
             dialog.setContentView(R.layout.word_suggestion_layout);
+            final ListView list = (ListView) dialog.findViewById(R.id.wordList);
+            final ParseJSONRequest parseJSONRequest = new ParseJSONRequest(DisplayEssay.this);
 
-            ListView list = (ListView) dialog.findViewById(R.id.wordList);
+            String url = "http://api.wordnik.com:80/v4/word.json/" + word.toLowerCase() + "/relatedWords?useCanonical=false&relationshipTypes=synonym&limitPerRelationshipType=10&api_key=7c6ee010f214172ad52050ab7c70d570e9140f374466d026f";
+            RequestQueue queue = Volley.newRequestQueue(DisplayEssay.this);
+            StringRequest request = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            String[] suggestedWords = parseJSONRequest.getWordsArray(response);
+                            if(suggestedWords != null)
+                            {
+                                ArrayAdapter<String> adapter = new ArrayAdapter<String>(DisplayEssay.this, android.R.layout.simple_list_item_1, suggestedWords);
+                                list.setAdapter(adapter);
+                                dialog.setCanceledOnTouchOutside(true);
+                                dialog.show();
+                            }
+                            else
+                            {
+                                ArrayAdapter<String> adapter = new ArrayAdapter<String>(DisplayEssay.this, android.R.layout.simple_list_item_1, new String[]{"No suggestions for " + word});
+                                list.setAdapter(adapter);
+                                dialog.show();
+                                list.setAdapter(adapter);
+                                dialog.show();
+                            }
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(getBaseContext(), "Error connection to server", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
-            ParseJSONRequest parseJSONRequest = new ParseJSONRequest(DisplayEssay.this);
-            String[] suggestedWords = parseJSONRequest.getWordsArray(response);
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(DisplayEssay.this, android.R.layout.simple_list_item_1, suggestedWords);
-            list.setAdapter(adapter);
-            dialog.show();
+            queue.add(request);
         }
 
         @Override
