@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -85,16 +86,13 @@ public class Login extends AppCompatActivity {
                                 progress = null;
                             }
 
-                            Toast.makeText(getApplicationContext(),
-                                    "Login successful",
-                                    Toast.LENGTH_LONG).show();
-
                             String p = pass.getText().toString();
                             String u = email.getText().toString();
 
 
                             try {
                                 Intent intent = new Intent(Login.this, HomeScreen.class);
+                                intent.putExtra("login", "yes");
                                 startActivity(intent);
                             } catch (Exception error) {
                                 Toast.makeText(Login.this, "Authentication failed", Toast.LENGTH_SHORT).show();

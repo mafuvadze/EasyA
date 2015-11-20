@@ -14,6 +14,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -49,6 +50,13 @@ public class HomeScreen extends AppCompatActivity {
         essays_btn.setBackgroundColor(Color.argb(255, 51, 153, 255));
         essays_btn.setTextColor(Color.WHITE);
         essayFragShown = true;
+
+        //check if it's first time seeing activity (jus loged in)
+        if(getIntent().getExtras().get("login") != null)
+        {
+            Snackbar.make((View) username.getParent(), "Welcome " + ParseUser.getCurrentUser().get("handle"), Snackbar.LENGTH_LONG).show();
+        }
+
         setProfilePicListener();
         setUsername();
         setProfilePic();
