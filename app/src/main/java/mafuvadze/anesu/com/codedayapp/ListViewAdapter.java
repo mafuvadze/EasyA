@@ -60,7 +60,6 @@ public class ListViewAdapter extends ArrayAdapter<String> {
                 break;
         }
 
-
         title.setText(essays.get(position).getString("title"));
         subject.setText(essays.get(position).getString("subject"));
         final String essay = essays.get(position).getString("content");
