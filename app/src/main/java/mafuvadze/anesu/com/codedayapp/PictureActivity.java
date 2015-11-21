@@ -8,8 +8,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
-import android.opengl.Matrix;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
@@ -58,23 +58,20 @@ public class PictureActivity extends AppCompatActivity implements Response.Liste
         takePicture();
     }
 
-    private void initializeViews()
-    {
+    private void initializeViews() {
         title = (EditText) findViewById(R.id.title);
         subject = (EditText) findViewById(R.id.subject);
         essay = (EditText) findViewById(R.id.essay);
     }
 
-    private void compressImage()
-    {
+    private void compressImage(Bitmap image) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        Bitmap.createScaledBitmap(pic, 400, 600, false).compress(Bitmap.CompressFormat.PNG, 100, stream);
+        image.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] byte_data = stream.toByteArray();
         saveToParse(byte_data);
     }
 
-    private void saveToParse(byte[] byte_data)
-    {
+    private void saveToParse(byte[] byte_data) {
         ParseFile pf = new ParseFile("essay_pic.jpg", byte_data);
         pf.saveInBackground();
         ParseUser.getCurrentUser().put("essay_pic", pf);
@@ -87,8 +84,7 @@ public class PictureActivity extends AppCompatActivity implements Response.Liste
         fetchStringResponseOCR(file.getUrl());
     }
 
-    private void parseResponse(String response)
-    {
+    private void parseResponse(String response) {
         try {
             JSONObject obj = new JSONObject(response);
             JSONArray array = obj.getJSONArray("text_block");
@@ -100,8 +96,7 @@ public class PictureActivity extends AppCompatActivity implements Response.Liste
 
     }
 
-    public void fetchStringResponseOCR(String url)
-    {
+    public void fetchStringResponseOCR(String url) {
         String path = "https://api.havenondemand.com/1/api/sync/ocrdocument/v1?url=" + url + "&apikey=60554d21-c589-4af8-af33-761cae860fab";
         RequestQueue queue = Volley.newRequestQueue(this);
         StringRequest request = new StringRequest(Request.Method.GET, path, this, this);
@@ -121,22 +116,30 @@ public class PictureActivity extends AppCompatActivity implements Response.Liste
         if (requestCode == 1) {
             try {
                 Bitmap image = MediaStore.Images.Media.getBitmap(
-                  getContentResolver(), imageUri);
+                        getContentResolver(), imageUri);
+                image = rotateImage(image, 90);
+                compressImage(image);
                 pic = image;
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            compressImage();
         }
     }
 
-    public String getRealPathFromUri(Uri contentUri)
-    {
+    private Bitmap rotateImage(Bitmap image, int deg) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(deg);
+        return Bitmap.createBitmap(Bitmap.createScaledBitmap(image, (int)(image.getWidth()*.3), (int)(image.getHeight()*.3),false )
+                , 0, 0, (int)(image.getWidth()*.3), (int)(image.getHeight()*.3), matrix, true);
+    }
+
+    public String getRealPathFromUri(Uri contentUri) {
         String[] proj = {MediaStore.Images.Media.DATA};
         Cursor cursor = managedQuery(contentUri, proj, null, null, null);
         int column_index = cursor
                 .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();;
+        cursor.moveToFirst();
+        ;
         return cursor.getString(column_index);
 
     }
@@ -151,8 +154,7 @@ public class PictureActivity extends AppCompatActivity implements Response.Liste
         parseResponse(response);
     }
 
-    private void displaySnackbar()
-    {
+    private void displaySnackbar() {
         View parentView = (View) title.getParent();
         Snackbar.make(parentView
                 , title.getText().toString() + " succesfully uploaded"
@@ -167,15 +169,12 @@ public class PictureActivity extends AppCompatActivity implements Response.Liste
         return true;
     }
 
-    private boolean isValidInput()
-    {
-        if(title.getText().toString() == ""
+    private boolean isValidInput() {
+        if (title.getText().toString() == ""
                 || subject.getText().toString() == ""
-                || essay.getText().toString() == "")
-        {
+                || essay.getText().toString() == "") {
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
@@ -190,14 +189,12 @@ public class PictureActivity extends AppCompatActivity implements Response.Liste
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        }
-        else if(id == R.id.confirm)
-        {
-            if(isValidInput()) {
+        } else if (id == R.id.confirm) {
+            if (isValidInput()) {
                 UploadEssay uploadEssay = new UploadEssay(this);
                 uploadEssay.upload(title.getText().toString()
-                ,subject.getText().toString()
-                ,essay.getText().toString());
+                        , subject.getText().toString()
+                        , essay.getText().toString());
                 displaySnackbar();
                 Intent intent = new Intent(PictureActivity.this, HomeScreen.class);
                 startActivity(intent);
@@ -207,8 +204,7 @@ public class PictureActivity extends AppCompatActivity implements Response.Liste
         return super.onOptionsItemSelected(item);
     }
 
-    class Background extends AsyncTask<Void, Void, Void>
-    {
+    class Background extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {

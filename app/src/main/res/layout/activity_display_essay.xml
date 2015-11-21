@@ -157,11 +157,12 @@
         </LinearLayout>
 
         <RelativeLayout
-            android:background="@color/Gray"
             android:layout_gravity="start"
-            android:layout_width="220dp"
+            android:layout_width="300dp"
             android:layout_height="match_parent">
 
+            <include
+                layout="@layout/drawer_layout"/>
 
         </RelativeLayout>
 
