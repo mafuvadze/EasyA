@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -88,12 +89,23 @@ public class PictureActivity extends AppCompatActivity implements Response.Liste
         try {
             JSONObject obj = new JSONObject(response);
             JSONArray array = obj.getJSONArray("text_block");
-            String essay = array.getString(0);
+            JSONObject text = array.getJSONObject(0);
+            String essay = text.getString("text");
+            essay = formatResponse(essay);
             this.essay.setText(essay);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+    }
+
+    private String formatResponse(String essay)
+    {
+        String formated = essay.replace("\"\n\"", " ")
+                .replace("&quot;", "\" \"")
+                .replace("&apos;", "\'");
+
+        return formated;
     }
 
     public void fetchStringResponseOCR(String url) {

@@ -46,6 +46,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     String essay_txt;
     String[] spellSuggestions;
     Mode current_mode = Mode.reading;
+    int temp_start, temp_end;
     private SpellCheckerSession mScs;
     private static final String TAG = DisplayEssay.class.getSimpleName();
     private static final int NOT_A_LENGTH = -1;
@@ -113,6 +115,10 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 essay.setText(essay_edit.getText().toString());
                 essay.setVisibility(View.VISIBLE);
                 essay_edit.setVisibility(View.GONE);
+
+                essay.setText(spelling_span);
+                essay.setMovementMethod(LinkMovementMethod.getInstance());
+                essay.setLinkTextColor(Color.RED);
             }
         });
 
@@ -210,11 +216,9 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         int first = 0;
         Map<Integer, Integer> start_end = new HashMap<>();
 
-        for (int i = 0; i < essay.getText().toString().length(); i++)
-        {
+        for (int i = 0; i < essay.getText().toString().length(); i++) {
             current = i;
-            if (!isValidCharacter(essay.getText().toString().charAt(i)))
-            {
+            if (!isValidCharacter(essay.getText().toString().charAt(i))) {
                 start_end.put(first, current);
                 //String word = essay_txt.substring(first, current);
                 first = current + 1;
@@ -224,20 +228,20 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         for (int i : start_end.keySet()) {
             int start = i, end = start_end.get(i);
 
-            if(essay.getText().toString() == null)
-            {
-                Toast.makeText(this, "essay is null", Toast.LENGTH_LONG).show();
+            String word = essay.getText().toString().substring(start, end);
+            if (word.trim() == "") {
+                continue;
             }
             else {
-                String word = essay.getText().toString().substring(start, end);
-                if(word.trim() == "")
-                {
-                    continue;
-                }
                 Log.i("word", word);
                 ss.setSpan(new MyClickableSpan(essay.getText().toString(), start, end), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                //fetchSuggestions(word.trim());
-                //spelling_span.setSpan(new SpellCheckSpan(essay_txt, start, end, spellSuggestions), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                try {
+                    temp_start = start;
+                    temp_end = end;
+                    fetchSuggestions(word.trim());
+                } catch (Exception e) {
+                    Log.i("mistake", e.toString() + "for " + word);
+                }
             }
 
         }
@@ -245,12 +249,10 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     }
 
     public boolean isValidCharacter(char ch) {
-        if(ch == '.' || ch == ',' || ch == ' ')
-        {
-           return false;
+        if (ch == '.' || ch == ',' || ch == ' ') {
+            return false;
         }
-        if(ch == '\'')
-        {
+        if (ch == '\'') {
             return true;
         }
         String str = ch + "";
@@ -293,11 +295,15 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                         sb, ssi.getSuggestionsInfoAt(j), ssi.getOffsetAt(j), ssi.getLengthAt(j));
             }
         }
+        //final int start = temp_start, end = temp_end;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 String[] suggestedWords = sb.toString().split(", ");
                 spellSuggestions = suggestedWords;
+                final int start = temp_start, end = temp_end;
+                spelling_span.setSpan(new SpellCheckSpan(essay_txt, start, end, suggestedWords), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                Log.i("suggestions", Arrays.toString(suggestedWords));
             }
         });
     }
@@ -334,19 +340,13 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             }
             sb.append(si.getSuggestionAt(j));
         }
-        sb.append(" (" + len + ")");
         if (length != NOT_A_LENGTH) {
             //sb.append(" length = " + length + ", offset = " + offset);
         }
     }
 
     public void fetchSuggestions(String word) {
-        try {
             mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(word)}, 6);
-        }catch(Exception e)
-        {
-            Toast.makeText(this, word + e.toString(), Toast.LENGTH_LONG).show();
-        }
     }
 
     enum Mode {
@@ -385,15 +385,12 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                         @Override
                         public void onResponse(String response) {
                             String[] suggestedWords = parseJSONRequest.getWordsArray(response);
-                            if(suggestedWords != null)
-                            {
+                            if (suggestedWords != null) {
                                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(DisplayEssay.this, android.R.layout.simple_list_item_1, suggestedWords);
                                 list.setAdapter(adapter);
                                 dialog.setCanceledOnTouchOutside(true);
                                 dialog.show();
-                            }
-                            else
-                            {
+                            } else {
                                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(DisplayEssay.this, android.R.layout.simple_list_item_1, new String[]{"No suggestions for " + word});
                                 list.setAdapter(adapter);
                                 dialog.show();
@@ -434,7 +431,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
         @Override
         public void onClick(View widget) {
-            if (suggestions != null && suggestions.toString() != "[]") {
+            if (suggestions != null) {
                 Dialog dialog = new Dialog(DisplayEssay.this);
                 dialog.setTitle("Did you mean...");
                 dialog.setContentView(R.layout.word_suggestion_layout);
@@ -445,7 +442,19 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 list.setAdapter(adapter);
                 dialog.show();
             }
+            else
+            {
+                Toast.makeText(DisplayEssay.this, "oopsie", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        @Override
+        public void updateDrawState(TextPaint ds) {
+            super.updateDrawState(ds);
+            ds.setUnderlineText(false);
         }
     }
+
+
 }
 
