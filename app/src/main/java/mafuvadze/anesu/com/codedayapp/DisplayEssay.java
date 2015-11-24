@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class DisplayEssay extends AppCompatActivity implements FindCallback<ParseObject>, SpellCheckerSession.SpellCheckerSessionListener {
 
@@ -58,12 +60,11 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     EditText essay_edit;
     TextView mode_indicator, essay;
     String essay_txt;
-    String[] spellSuggestions;
     Mode current_mode = Mode.reading;
-    int temp_start, temp_end;
     private SpellCheckerSession mScs;
     private static final String TAG = DisplayEssay.class.getSimpleName();
     private static final int NOT_A_LENGTH = -1;
+    EnglishWords words;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,8 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         essay = (TextView) findViewById(R.id.essay);
         essay.setHighlightColor(Color.TRANSPARENT);
         essay_edit = (EditText) findViewById(R.id.essay_edit);
+
+        words = new EnglishWords(this);
 
         initializeModeViews();
         recieveIntent();
@@ -118,7 +121,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
                 essay.setText(spelling_span);
                 essay.setMovementMethod(LinkMovementMethod.getInstance());
-                essay.setLinkTextColor(Color.RED);
+                essay.setLinkTextColor(Color.parseColor("#C80000"));
             }
         });
 
@@ -136,6 +139,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
                 essay.setText(essay_edit.getText().toString());
                 essay.setVisibility(View.VISIBLE);
+                essay.setLinkTextColor(Color.BLACK);
                 essay_edit.setVisibility(View.GONE);
             }
         });
@@ -171,6 +175,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
                 //essay.setText(essay_edit.getText().toString());
                 essay.setVisibility(View.VISIBLE);
+                essay.setLinkTextColor(Color.BLACK);
                 essay_edit.setVisibility(View.GONE);
 
                 essay.setText(ss);
@@ -192,6 +197,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
                 essay.setText(essay_edit.getText().toString());
                 essay.setVisibility(View.VISIBLE);
+                essay.setLinkTextColor(Color.BLACK);
                 essay_edit.setVisibility(View.GONE);
             }
         });
@@ -233,14 +239,9 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 continue;
             }
             else {
-                Log.i("word", word);
                 ss.setSpan(new MyClickableSpan(essay.getText().toString(), start, end), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                try {
-                    temp_start = start;
-                    temp_end = end;
-                    fetchSuggestions(word.trim());
-                } catch (Exception e) {
-                    Log.i("mistake", e.toString() + "for " + word);
+                if(!words.isWord(word.toLowerCase())) {
+                    spelling_span.setSpan(new SpellCheckSpan(essay_txt, start, end), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                 }
             }
 
@@ -300,10 +301,15 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             @Override
             public void run() {
                 String[] suggestedWords = sb.toString().split(", ");
-                spellSuggestions = suggestedWords;
-                final int start = temp_start, end = temp_end;
-                spelling_span.setSpan(new SpellCheckSpan(essay_txt, start, end, suggestedWords), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                Log.i("suggestions", Arrays.toString(suggestedWords));
+                Dialog dialog = new Dialog(DisplayEssay.this);
+                dialog.setTitle("Did you mean...");
+                dialog.setContentView(R.layout.word_suggestion_layout);
+
+                ListView list = (ListView) dialog.findViewById(R.id.wordList);
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(DisplayEssay.this, android.R.layout.simple_list_item_1, suggestedWords);
+                list.setAdapter(adapter);
+                dialog.show();
             }
         });
     }
@@ -419,32 +425,22 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     class SpellCheckSpan extends ClickableSpan {
         String essay, word;
         int start, end;
-        String[] suggestions;
 
-        SpellCheckSpan(String essay, int start, int end, String[] suggestions) {
+        SpellCheckSpan(String essay, int start, int end) {
             this.essay = essay;
             this.start = start;
             this.end = end;
-            this.suggestions = suggestions;
             word = essay.substring(start, end);
         }
 
         @Override
         public void onClick(View widget) {
-            if (suggestions != null) {
-                Dialog dialog = new Dialog(DisplayEssay.this);
-                dialog.setTitle("Did you mean...");
-                dialog.setContentView(R.layout.word_suggestion_layout);
-
-                ListView list = (ListView) dialog.findViewById(R.id.wordList);
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(DisplayEssay.this, android.R.layout.simple_list_item_1, suggestions);
-                list.setAdapter(adapter);
-                dialog.show();
+            try {
+                DisplayEssay.this.fetchSuggestions(word);
             }
-            else
+            catch (Exception e)
             {
-                Toast.makeText(DisplayEssay.this, "oopsie", Toast.LENGTH_LONG).show();
+
             }
         }
 
@@ -454,7 +450,6 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             ds.setUnderlineText(false);
         }
     }
-
 
 }
 
