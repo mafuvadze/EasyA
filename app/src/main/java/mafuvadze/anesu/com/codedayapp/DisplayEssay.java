@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 
 public class DisplayEssay extends AppCompatActivity implements FindCallback<ParseObject>, SpellCheckerSession.SpellCheckerSessionListener {
 
@@ -65,6 +66,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     private static final String TAG = DisplayEssay.class.getSimpleName();
     private static final int NOT_A_LENGTH = -1;
     EnglishWords words;
+    EssayStats stats;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +85,6 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         final TextServicesManager tsm = (TextServicesManager) getSystemService(
                 Context.TEXT_SERVICES_MANAGER_SERVICE);
         mScs = tsm.newSpellCheckerSession(null, null, this, true);
-
     }
 
 
@@ -199,6 +200,10 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 essay.setVisibility(View.VISIBLE);
                 essay.setLinkTextColor(Color.BLACK);
                 essay_edit.setVisibility(View.GONE);
+
+                stats = new EssayStats(essay.getText().toString(), DisplayEssay.this);
+                //test
+                Log.i("stats", "transiotion words = " + stats.getTransitioWords() + " word count " + stats.getWordCount() + " most freg " + stats.mostUsedWords().toString());
             }
         });
 
