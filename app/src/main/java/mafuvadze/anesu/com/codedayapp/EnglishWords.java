@@ -3,6 +3,7 @@ package mafuvadze.anesu.com.codedayapp;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -16,7 +17,7 @@ import java.util.Scanner;
 /**
  * Created by Angellar Manguvo on 11/23/2015.
  */
-public class EnglishWords
+public class EnglishWords extends AsyncTask<Void, Void, Void>
 {
 
     Context context;
@@ -31,18 +32,7 @@ public class EnglishWords
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progress.setCancelable(false);
         progress.show();
-        ObjectInputStream scan = null;
-        try {
-            scan = new ObjectInputStream(context.getResources().openRawResource(R.raw.words_bin));
-            while(true)
-            {
-                words.add((String) scan.readObject());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        progress.dismiss();
+        this.execute();
     }
 
     public boolean isWord(String word)
@@ -57,4 +47,21 @@ public class EnglishWords
         }
     }
 
+    @Override
+    protected Void doInBackground(Void... params) {
+        ObjectInputStream scan = null;
+        try {
+            scan = new ObjectInputStream(context.getResources().openRawResource(R.raw.words_bin));
+            while(true)
+            {
+                words.add((String) scan.readObject());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.i("error", e.toString());
+        }
+
+        progress.dismiss();
+        return null;
+    }
 }

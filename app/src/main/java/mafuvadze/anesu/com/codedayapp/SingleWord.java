@@ -11,4 +11,10 @@ public class SingleWord {
         this.word = word;
         this.freq = freq;
     }
+
+    @Override
+    public String toString()
+    {
+        return word + "(" + freq + ")";
+    }
 }

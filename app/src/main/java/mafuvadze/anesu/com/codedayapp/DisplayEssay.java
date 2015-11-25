@@ -73,11 +73,18 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_essay);
 
+        words = new EnglishWords(this);
+        try {
+            words.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
         essay = (TextView) findViewById(R.id.essay);
         essay.setHighlightColor(Color.TRANSPARENT);
         essay_edit = (EditText) findViewById(R.id.essay_edit);
-
-        words = new EnglishWords(this);
 
         initializeModeViews();
         recieveIntent();
@@ -201,9 +208,9 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 essay.setLinkTextColor(Color.BLACK);
                 essay_edit.setVisibility(View.GONE);
 
-                stats = new EssayStats(essay.getText().toString(), DisplayEssay.this);
                 //test
-                Log.i("stats", "transiotion words = " + stats.getTransitionWords() + " word count " + stats.getWordCount() + " most freg " + stats.mostUsedWords().get(0).word + " " + stats.mostUsedWords().get(1).word);
+                Log.i("stats", "transition words = " + stats.getTransitionWords() + " word count " + stats.getWordCount() + " most freg " + stats.mostUsedWords()
+                + " sentences = " + stats.sentences() + " avg sent length  = " + stats.avgSentenceLength() + " misspelled = " + stats.misspelled + " comma = " + stats.commaErrors());
             }
         });
 
@@ -223,6 +230,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     }
 
     public void findAllWords() {
+        stats = new EssayStats(essay.getText().toString(), DisplayEssay.this);
         int current = 0;
         int first = 0;
         Map<Integer, Integer> start_end = new HashMap<>();
@@ -357,6 +365,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     }
 
     public void fetchSuggestions(String word) {
+            stats.misspelled.add(word);
             mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(word)}, 6);
     }
 
