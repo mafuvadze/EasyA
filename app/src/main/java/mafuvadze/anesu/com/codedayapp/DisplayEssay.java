@@ -203,7 +203,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
                 stats = new EssayStats(essay.getText().toString(), DisplayEssay.this);
                 //test
-                Log.i("stats", "transiotion words = " + stats.getTransitioWords() + " word count " + stats.getWordCount() + " most freg " + stats.mostUsedWords().toString());
+                Log.i("stats", "transiotion words = " + stats.getTransitionWords() + " word count " + stats.getWordCount() + " most freg " + stats.mostUsedWords().get(0).word + " " + stats.mostUsedWords().get(1).word);
             }
         });
 
