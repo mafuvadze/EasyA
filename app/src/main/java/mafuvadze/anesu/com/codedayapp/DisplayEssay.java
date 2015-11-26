@@ -89,7 +89,13 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         setContentView(R.layout.activity_display_essay);
 
         words = new EnglishWords(this);
-
+        try {
+            words.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
         text_size_indicator = (TextView) findViewById(R.id.text_size_indicator);
         share = (RelativeLayout) findViewById(R.id.share_essay);
