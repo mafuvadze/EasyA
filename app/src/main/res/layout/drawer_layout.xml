@@ -6,6 +6,7 @@
     android:orientation="vertical">
 
     <RelativeLayout
+        android:layout_marginTop="5dp"
         android:background="@color/LightGrey"
         android:layout_width="match_parent"
         android:layout_height="60dp">
@@ -40,6 +41,7 @@
             android:layout_height="wrap_content" />
 
         <SeekBar
+            android:id="@+id/text_size_seek"
             android:layout_toRightOf="@+id/size_icon"
             android:layout_marginRight="20dp"
             android:layout_marginTop="6dp"
@@ -76,10 +78,10 @@
             android:layout_height="wrap_content" />
 
         <Spinner
+            android:id="@+id/font_spinner"
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
             android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/text_font"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -111,16 +113,17 @@
             android:layout_height="wrap_content" />
 
         <Spinner
+            android:id="@+id/color_spinner"
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
             android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/color_font"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/share_essay"
         android:layout_marginTop="5dp"
         android:background="@color/LightGrey"
         android:layout_width="match_parent"
@@ -148,6 +151,35 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/plag"
+        android:layout_marginTop="5dp"
+        android:background="@color/LightGrey"
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <ImageView
+            android:layout_centerVertical="true"
+            android:id="@+id/plagcheck_icon"
+            android:layout_margin="5dp"
+            android:src="@mipmap/ic_plag"
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+
+        <TextView
+            android:typeface="serif"
+            android:textColor="@color/DodgerBlue"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/plagcheck_icon"
+            android:textSize="17sp"
+            android:text="Check for plagerism"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/upload"
         android:layout_marginTop="5dp"
         android:background="@color/LightGrey"
         android:layout_width="match_parent"
@@ -175,6 +207,7 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/delete"
         android:layout_marginTop="5dp"
         android:background="@color/LightGrey"
         android:layout_width="match_parent"

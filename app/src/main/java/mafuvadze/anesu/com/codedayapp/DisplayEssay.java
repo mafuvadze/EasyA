@@ -2,10 +2,14 @@ package mafuvadze.anesu.com.codedayapp;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
@@ -16,6 +20,8 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,11 +32,15 @@ import android.view.textservice.SpellCheckerSession;
 import android.view.textservice.SuggestionsInfo;
 import android.view.textservice.TextInfo;
 import android.view.textservice.TextServicesManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,14 +69,19 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     ImageView spell, read, edit, syn, analyze;
     SpannableString ss, spelling_span;
     EditText essay_edit;
-    TextView mode_indicator, essay;
-    String essay_txt;
+    TextView mode_indicator, essay, text_size_indicator;
+    String essay_txt, title;
     Mode current_mode = Mode.reading;
     private SpellCheckerSession mScs;
     private static final String TAG = DisplayEssay.class.getSimpleName();
     private static final int NOT_A_LENGTH = -1;
     EnglishWords words;
     EssayStats stats;
+    RelativeLayout share, delete, upload, plagerism;
+    Spinner font_spinner, color_spinner;
+    SeekBar size_seek;
+    int currentTextColor, currentFont;
+    ListView report_list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,17 +89,26 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         setContentView(R.layout.activity_display_essay);
 
         words = new EnglishWords(this);
-        try {
-            words.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
 
+
+        text_size_indicator = (TextView) findViewById(R.id.text_size_indicator);
+        share = (RelativeLayout) findViewById(R.id.share_essay);
+        delete = (RelativeLayout) findViewById(R.id.delete);
+        upload = (RelativeLayout) findViewById(R.id.upload);
+        plagerism = (RelativeLayout) findViewById(R.id.plag);
+        font_spinner = (Spinner) findViewById(R.id.font_spinner);
+        color_spinner = (Spinner) findViewById(R.id.color_spinner);
+        size_seek = (SeekBar) findViewById(R.id.text_size_seek);
         essay = (TextView) findViewById(R.id.essay);
         essay.setHighlightColor(Color.TRANSPARENT);
         essay_edit = (EditText) findViewById(R.id.essay_edit);
+        report_list = (ListView) findViewById(R.id.report_list);
+
+        setUpFontSettings();
+        setUpColorSettings();
+        setUpShareSettings();
+        setUpDeleteEssaySettings();
+        setUpFontSizeSettings();
 
         initializeModeViews();
         recieveIntent();
@@ -94,9 +118,173 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         mScs = tsm.newSpellCheckerSession(null, null, this, true);
     }
 
+    private void setUpFontSizeSettings()
+    {
+        final int min = 12;
+        size_seek.setMax(15);
+        size_seek.setProgress(7);
+        size_seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int value = progress + min;
+                essay.setTextSize(TypedValue.COMPLEX_UNIT_SP, value);
+                essay_edit.setTextSize(TypedValue.COMPLEX_UNIT_SP, value);
+                text_size_indicator.setText(value + "");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+    private void setUpFontSettings() {
+        final String[] font_array = new String[]{"Serif", "Normal", "Monospace","Sans"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, font_array);
+        font_spinner.setAdapter(adapter);
+        font_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String font = font_array[position];
+                switch (font) {
+                    case "Monospace": {
+                        essay.setTypeface(Typeface.MONOSPACE);
+                        essay_edit.setTypeface(Typeface.MONOSPACE);
+                        break;
+                    }
+                    case "Normal": {
+                        essay.setTypeface(Typeface.DEFAULT);
+                        essay_edit.setTypeface(Typeface.DEFAULT);
+                        break;
+                    }
+                    case "Serif": {
+                        essay.setTypeface(Typeface.SERIF);
+                        essay_edit.setTypeface(Typeface.SERIF);
+                        break;
+                    }
+                    case "Sans": {
+                        essay.setTypeface(Typeface.SANS_SERIF);
+                        essay_edit.setTypeface(Typeface.SANS_SERIF);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private void setUpColorSettings() {
+        final String[] colors = new String[]{"Black", "Blue", "Green"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, colors);
+        color_spinner.setAdapter(adapter);
+        color_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String color = colors[position];
+                switch (color) {
+                    case "Blue": {
+                        currentTextColor = getResources().getColor(R.color.DodgerBlue);
+                        essay.setTextColor(currentTextColor);
+                        essay_edit.setTextColor(currentTextColor);
+                        break;
+                    }
+                    case "Black": {
+                        currentTextColor = getResources().getColor(R.color.Black);
+                        essay.setTextColor(currentTextColor);
+                        essay_edit.setTextColor(currentTextColor);
+                        break;
+                    }
+                    case "Green": {
+                        currentTextColor = getResources().getColor(R.color.Green);
+                        essay.setTextColor(currentTextColor);
+                        essay_edit.setTextColor(currentTextColor);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+    }
+
+    private void setUpShareSettings() {
+        share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, essay.getText().toString());
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
+            }
+        });
+
+        //upload to Google Drive
+
+    }
+
+    private void setUpDeleteEssaySettings() {
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(DisplayEssay.this)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle("Delete")
+                        .setMessage("Are you sure you want to delete " + title)
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ParseQuery<ParseObject> query = new ParseQuery("essays");
+                                query.whereEqualTo("title", title);
+                                query.findInBackground(new FindCallback<ParseObject>() {
+                                    @Override
+                                    public void done(List<ParseObject> parseObjects, ParseException e) {
+                                        if (e == null) {
+
+                                            for (ParseObject delete : parseObjects) {
+                                                try {
+                                                    delete.deleteInBackground().waitForCompletion();
+                                                    //go back to main screen
+                                                    Intent intent = new Intent(DisplayEssay.this, HomeScreen.class);
+                                                    startActivity(intent);
+                                                } catch (InterruptedException e1) {
+                                                    e1.printStackTrace();
+                                                }
+                                            }
+                                        } else {
+                                            Toast.makeText(DisplayEssay.this, "error in deleting", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            }
+                        })
+                        .setNegativeButton("Keep", null)
+                        .show();
+            }
+        });
+    }
 
     private void recieveIntent() {
-        String title = getIntent().getStringExtra("title");
+        title = getIntent().getStringExtra("title");
         ParseQuery query = new ParseQuery("essays");
         query.whereEqualTo("title", title);
         query.findInBackground(this);
@@ -130,6 +318,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 essay.setText(spelling_span);
                 essay.setMovementMethod(LinkMovementMethod.getInstance());
                 essay.setLinkTextColor(Color.parseColor("#C80000"));
+                report_list.setVisibility(View.GONE);
             }
         });
 
@@ -149,6 +338,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 essay.setVisibility(View.VISIBLE);
                 essay.setLinkTextColor(Color.BLACK);
                 essay_edit.setVisibility(View.GONE);
+                report_list.setVisibility(View.GONE);
             }
         });
 
@@ -167,6 +357,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 essay_edit.setText(essay.getText().toString());
                 essay.setVisibility(View.GONE);
                 essay_edit.setVisibility(View.VISIBLE);
+                report_list.setVisibility(View.GONE);
             }
         });
         syn.setOnClickListener(new View.OnClickListener() {
@@ -188,6 +379,11 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
                 essay.setText(ss);
                 essay.setMovementMethod(LinkMovementMethod.getInstance());
+                report_list.setVisibility(View.GONE);
+
+                //essay.setTextSize(essay_edit.getTextSize());
+                //essay.setTypeface(essay_edit.getTypeface());
+                //essay.setTextColor(essay_edit.getTextColors());
             }
         });
 
@@ -204,13 +400,14 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 spell.setBackground(getResources().getDrawable(R.drawable.no_border));
 
                 essay.setText(essay_edit.getText().toString());
-                essay.setVisibility(View.VISIBLE);
+                essay.setVisibility(View.GONE);
                 essay.setLinkTextColor(Color.BLACK);
                 essay_edit.setVisibility(View.GONE);
+                report_list.setVisibility(View.VISIBLE);
 
                 //test
                 Log.i("stats", "transition words = " + stats.getTransitionWords() + " word count " + stats.getWordCount() + " most freg " + stats.mostUsedWords()
-                + " sentences = " + stats.sentences() + " avg sent length  = " + stats.avgSentenceLength() + " misspelled = " + stats.misspelled + " comma = " + stats.commaErrors());
+                        + " sentences = " + stats.sentences() + " avg sent length  = " + stats.avgSentenceLength() + " misspelled = " + stats.misspelled + " comma = " + stats.commaErrors());
             }
         });
 
@@ -250,10 +447,9 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             String word = essay.getText().toString().substring(start, end);
             if (word.trim() == "") {
                 continue;
-            }
-            else {
+            } else {
                 ss.setSpan(new MyClickableSpan(essay.getText().toString(), start, end), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                if(!words.isWord(word.toLowerCase())) {
+                if (!words.isWord(word.toLowerCase())) {
                     spelling_span.setSpan(new SpellCheckSpan(essay_txt, start, end), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                 }
             }
@@ -365,8 +561,8 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     }
 
     public void fetchSuggestions(String word) {
-            stats.misspelled.add(word);
-            mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(word)}, 6);
+        stats.misspelled.add(word);
+        mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(word)}, 6);
     }
 
     enum Mode {
@@ -451,9 +647,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         public void onClick(View widget) {
             try {
                 DisplayEssay.this.fetchSuggestions(word);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
 
             }
         }
