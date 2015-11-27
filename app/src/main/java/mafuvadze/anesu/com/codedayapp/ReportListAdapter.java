@@ -1,6 +1,7 @@
 package mafuvadze.anesu.com.codedayapp;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +19,13 @@ import java.util.Objects;
 public class ReportListAdapter extends ArrayAdapter<String>
 {
     private final String SPELLING_ERROR = "spelling";
-    private final String GRAMMER_ERROR = "grammer";
+    private final String GRAMMAR_ERROR = "grammar";
     private final String PUNCTUATION_ERROR = "punctuation";
     private final String DETAILS = "detail";
     List<String> identifier;
     List<Object> error;
     Context context;
-    public ReportListAdapter(Context context, int resource, HashMap<String, Object> error) {
+    public ReportListAdapter(Context context, int resource, HashMap<String, List<Object>> error) {
         super(context, resource);
         this.context = context;
         identifier = new ArrayList<String>();
@@ -38,9 +39,9 @@ public class ReportListAdapter extends ArrayAdapter<String>
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        switch (identifier.get(position))
+        switch ("spelling")
         {
-            case SPELLING_ERROR:
+            case "spelling":
             {
                 if(convertView == null)
                 {
@@ -52,9 +53,11 @@ public class ReportListAdapter extends ArrayAdapter<String>
                 String txt_err = err + " may be misspelled";
                 TextView err_view = (TextView) convertView.findViewById(R.id.mispelled);
                 err_view.setText(txt_err);
+                Log.i("worked", err + " dookie");
+                return convertView;
 
             }
-            case GRAMMER_ERROR:
+            case GRAMMAR_ERROR:
             {
 
             }
@@ -68,6 +71,7 @@ public class ReportListAdapter extends ArrayAdapter<String>
             }
         }
 
-        return super.getView(position, convertView, parent);
+        return null;
+
     }
 }

@@ -57,6 +57,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -410,6 +411,12 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 essay.setLinkTextColor(Color.BLACK);
                 essay_edit.setVisibility(View.GONE);
                 report_list.setVisibility(View.VISIBLE);
+                HashMap<String, List<Object>> i = new HashMap<String, List<Object>>();
+                i.put("spelling", Arrays.asList((Object)stats.misspelled));
+                ReportListAdapter adapter = new ReportListAdapter(
+                        DisplayEssay.this, R.layout.spelling_error_row, i);
+                report_list.setAdapter(adapter);
+
 
                 //test
                 Log.i("stats", "transition words = " + stats.getTransitionWords() + " word count " + stats.getWordCount() + " most freg " + stats.mostUsedWords()
