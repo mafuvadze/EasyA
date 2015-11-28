@@ -13,7 +13,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".Login"
-            android:label="Login"
+            android:label="Easy A"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,19 +27,19 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".HomeScreen"
-            android:label="I Can Fix That"
+            android:label="Easy A"
             android:screenOrientation="portrait" />
         <activity
             android:name=".CopyEssay"
-            android:label="Enter Essay"
+            android:label="Upload"
             android:screenOrientation="portrait" />
         <activity
             android:name=".PictureActivity"
-            android:label="Picture"
+            android:label="Upload"
             android:screenOrientation="portrait" />
         <activity
             android:name=".DisplayEssay"
-            android:label="Display"
+            android:label="Editor"
             android:screenOrientation="portrait" />
 
         <service
@@ -52,10 +52,6 @@
             </intent-filter>
         </service>
 
-        <activity
-            android:name=".Del"
-            android:label="@string/title_activity_del" >
-        </activity>
     </application>
 
 </manifest>

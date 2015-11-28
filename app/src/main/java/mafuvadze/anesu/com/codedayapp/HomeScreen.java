@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -174,7 +175,7 @@ public class HomeScreen extends AppCompatActivity {
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                startActivityForResult(camera_intent, 1);
+                                startActivityForResult(camera_intent, 8);
 
                             }
                         })
@@ -189,22 +190,28 @@ public class HomeScreen extends AppCompatActivity {
         });
     }
 
+    private Bitmap rotateImage(Bitmap image, int deg) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(deg);
+        return Bitmap.createBitmap(image
+                , 0, 0, (int)(image.getWidth()), (int)(image.getHeight()), matrix, true);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         try
         {
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+            bitmap = rotateImage(bitmap, 90);
 
             Bitmap pp = getRoundedShape(bitmap);
 
             profile_pic.setImageBitmap(pp);
-            profile_pic.setRotation(-90);
+            profile_pic.setRotation(90);
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             byte[] byte_data = stream.toByteArray();
             saveToParse(byte_data);
-
-
         }
         catch (Exception e)
         {
