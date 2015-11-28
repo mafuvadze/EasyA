@@ -2,15 +2,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="mafuvadze.anesu.com.codedayapp.PictureActivity">
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
 
     <item
         android:id="@+id/confirm"
         android:orderInCategory="100"
         android:title="Submit"
+        android:icon="@mipmap/ic_submit"
         app:showAsAction="always" />
 </menu>

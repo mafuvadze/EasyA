@@ -27,11 +27,6 @@ public class EnglishWords extends AsyncTask<Void, Void, Void>
     {
         this.context = context;
         words = new HashSet<>();
-        progress = new ProgressDialog(context);
-        progress.setMessage("Loading...");
-        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progress.setCancelable(false);
-        progress.show();
         this.execute();
     }
 
@@ -48,6 +43,16 @@ public class EnglishWords extends AsyncTask<Void, Void, Void>
     }
 
     @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        progress = new ProgressDialog(context);
+        progress.setMessage("Loading...");
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setCancelable(false);
+        progress.show();
+    }
+
+    @Override
     protected Void doInBackground(Void... params) {
         ObjectInputStream scan = null;
         try {
@@ -60,8 +65,12 @@ public class EnglishWords extends AsyncTask<Void, Void, Void>
             e.printStackTrace();
             Log.i("error", e.toString());
         }
-
-        progress.dismiss();
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        progress.dismiss();
     }
 }

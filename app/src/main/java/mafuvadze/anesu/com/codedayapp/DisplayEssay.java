@@ -1,6 +1,7 @@
 package mafuvadze.anesu.com.codedayapp;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -41,6 +42,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,9 +59,11 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -70,7 +74,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     ImageView spell, read, edit, syn, analyze;
     SpannableString ss, spelling_span;
     EditText essay_edit;
-    TextView mode_indicator, essay, text_size_indicator;
+    TextView mode_indicator, essay, text_size_indicator, drawer_mode;
     String essay_txt, title;
     Mode current_mode = Mode.reading;
     private SpellCheckerSession mScs;
@@ -83,6 +87,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     SeekBar size_seek;
     int currentTextColor, currentFont;
     ListView report_list;
+    Switch autosave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,13 +95,6 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         setContentView(R.layout.activity_display_essay);
 
         words = new EnglishWords(this);
-        try {
-            words.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
 
         text_size_indicator = (TextView) findViewById(R.id.text_size_indicator);
         share = (RelativeLayout) findViewById(R.id.share_essay);
@@ -110,19 +108,9 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         essay.setHighlightColor(Color.TRANSPARENT);
         essay_edit = (EditText) findViewById(R.id.essay_edit);
         report_list = (ListView) findViewById(R.id.report_list);
-
-        setUpFontSettings();
-        setUpColorSettings();
-        setUpShareSettings();
-        setUpDeleteEssaySettings();
-        setUpFontSizeSettings();
-
-        initializeModeViews();
-        recieveIntent();
-
-        final TextServicesManager tsm = (TextServicesManager) getSystemService(
-                Context.TEXT_SERVICES_MANAGER_SERVICE);
-        mScs = tsm.newSpellCheckerSession(null, null, this, true);
+        drawer_mode = (TextView) findViewById(R.id.drawer_mode);
+        autosave = (Switch) findViewById(R.id.autosave);
+        autosave.setChecked(true);
     }
 
     private void setUpFontSizeSettings()
@@ -152,7 +140,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     }
 
     private void setUpFontSettings() {
-        final String[] font_array = new String[]{"Serif", "Normal", "Monospace","Sans"};
+        final String[] font_array = new String[]{"Serif ", "Normal", "Mono  ","Sans  "};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, font_array);
         font_spinner.setAdapter(adapter);
@@ -161,8 +149,8 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String font = font_array[position];
-                switch (font) {
-                    case "Monospace": {
+                switch (font.trim()) {
+                    case "Mono": {
                         essay.setTypeface(Typeface.MONOSPACE);
                         essay_edit.setTypeface(Typeface.MONOSPACE);
                         break;
@@ -193,7 +181,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     }
 
     private void setUpColorSettings() {
-        final String[] colors = new String[]{"Black", "Blue", "Green"};
+        final String[] colors = new String[]{"Black   ", "Blue  ", "Green "};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, colors);
         color_spinner.setAdapter(adapter);
@@ -202,7 +190,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String color = colors[position];
-                switch (color) {
+                switch (color.trim()) {
                     case "Blue": {
                         currentTextColor = getResources().getColor(R.color.DodgerBlue);
                         essay.setTextColor(currentTextColor);
@@ -311,6 +299,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.spelling;
                 mode_indicator.setText("Spelling Mode");
+                drawer_mode.setText("Spelling Mode");
 
                 spell.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
                 read.setBackground(getResources().getDrawable(R.drawable.no_border));
@@ -334,6 +323,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.reading;
                 mode_indicator.setText("Reading Mode");
+                drawer_mode.setText("Reading Mode");
 
                 read.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
                 spell.setBackground(getResources().getDrawable(R.drawable.no_border));
@@ -354,6 +344,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.editing;
                 mode_indicator.setText("Editing Mode");
+                drawer_mode.setText("Editing Mode");
 
                 edit.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
                 read.setBackground(getResources().getDrawable(R.drawable.no_border));
@@ -372,6 +363,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.synonym;
                 mode_indicator.setText("Synonym Mode");
+                drawer_mode.setText("Synonym Mode");
 
                 syn.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
                 read.setBackground(getResources().getDrawable(R.drawable.no_border));
@@ -399,6 +391,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             public void onClick(View v) {
                 current_mode = Mode.analyzing;
                 mode_indicator.setText("Analyze Mode");
+                drawer_mode.setText("Analyze Mode");
 
                 analyze.setBackground(getResources().getDrawable(R.drawable.rounded_image_view));
                 read.setBackground(getResources().getDrawable(R.drawable.no_border));
@@ -669,6 +662,77 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         public void updateDrawState(TextPaint ds) {
             super.updateDrawState(ds);
             ds.setUnderlineText(false);
+        }
+    }
+
+    class EnglishWords extends AsyncTask<Void, Void, Void>
+    {
+
+        Context context;
+        HashSet<String> words;
+        ProgressDialog progress;
+        public EnglishWords(Context context)
+        {
+            this.context = context;
+            words = new HashSet<>();
+            this.execute();
+        }
+
+        public boolean isWord(String word)
+        {
+            if(words.contains(word.toLowerCase()))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progress = new ProgressDialog(context);
+            progress.setMessage("Loading...");
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            ObjectInputStream scan = null;
+            try {
+                scan = new ObjectInputStream(context.getResources().openRawResource(R.raw.words_bin));
+                while(true)
+                {
+                    words.add((String) scan.readObject());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i("error", e.toString());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            progress.dismiss();
+
+            DisplayEssay.this.setUpFontSettings();
+            DisplayEssay.this.setUpColorSettings();
+            DisplayEssay.this.setUpShareSettings();
+            DisplayEssay.this.setUpDeleteEssaySettings();
+            DisplayEssay.this.setUpFontSizeSettings();
+
+            initializeModeViews();
+            recieveIntent();
+
+            final TextServicesManager tsm = (TextServicesManager) getSystemService(
+                    Context.TEXT_SERVICES_MANAGER_SERVICE);
+            mScs = tsm.newSpellCheckerSession(null, null, DisplayEssay.this, true);
         }
     }
 
