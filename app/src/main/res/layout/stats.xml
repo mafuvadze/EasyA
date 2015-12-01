@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/LightPink"
+    android:background="@color/LightGrey"
     android:layout_margin="5dp">
 
     <com.github.mikephil.charting.charts.PieChart

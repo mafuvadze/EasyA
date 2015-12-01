@@ -3,12 +3,18 @@ package mafuvadze.anesu.com.codedayapp;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
+import android.view.View;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Angellar Manguvo on 11/18/2015.
@@ -16,6 +22,7 @@ import java.util.Date;
 public class UploadEssay
 {
     Context context;
+    String essay;
     public UploadEssay(Context context)
     {
         this.context = context;
@@ -43,6 +50,25 @@ public class UploadEssay
                 }
             }
 
+        });
+    }
+
+    public void update(final String title, final String essay_txt)
+    {
+        this.essay = essay_txt;
+        ParseQuery query = new ParseQuery("essays");
+        query.whereEqualTo("title", title);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                ParseObject essay = objects.get(0);
+                essay.put("content", essay);
+                try {
+                    essay.saveInBackground().waitForCompletion();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
         });
     }
 }

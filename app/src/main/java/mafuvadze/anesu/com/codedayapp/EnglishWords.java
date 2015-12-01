@@ -32,7 +32,37 @@ public class EnglishWords extends AsyncTask<Void, Void, Void>
 
     public boolean isWord(String word)
     {
-        if(words.contains(word.toLowerCase()))
+        String word_ = word.toLowerCase().trim();
+        if(word.trim().substring(word.length() - 3).equals("ing"))
+        {
+            word_ = word.substring(0, word.length() - 3);
+        }
+
+        if(word_.substring(word_.length() - 3).equals("ize"))
+        {
+            word_ = word_.substring(0, word_.length() -3);
+        }
+
+        if(word_.substring(word_.length() - 4).equals("izes"))
+        {
+            word_ = word_.substring(0, word_.length() -4);
+        }
+
+        if(word_.substring(word_.length() - 3).equals("ese"))
+        {
+            word_ = word_.substring(0, word_.length()  -3);
+        }
+
+        if(word_ == "I")
+        {
+            return true;
+        }
+
+        if(word_.substring(word.length() - 2).equals("\'s"))
+        {
+            word_ = word_.substring(0, word.length() -2);
+        }
+        if(words.contains(word_))
         {
             return true;
         }

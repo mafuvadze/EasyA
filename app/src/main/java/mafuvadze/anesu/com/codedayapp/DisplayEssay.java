@@ -10,6 +10,8 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -88,6 +91,9 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     int currentTextColor, currentFont;
     ListView report_list;
     Switch autosave;
+    DrawerLayout drawer;
+    ActionBarDrawerToggle toggle;
+    Typeface roboto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +102,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
         words = new EnglishWords(this);
 
+        drawer = (DrawerLayout) findViewById(R.id.drawer);
         text_size_indicator = (TextView) findViewById(R.id.text_size_indicator);
         share = (RelativeLayout) findViewById(R.id.share_essay);
         delete = (RelativeLayout) findViewById(R.id.delete);
@@ -111,6 +118,8 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         drawer_mode = (TextView) findViewById(R.id.drawer_mode);
         autosave = (Switch) findViewById(R.id.autosave);
         autosave.setChecked(true);
+        roboto =  Typeface.createFromAsset(this.getAssets(),
+                "fonts/Roboto-Thin.ttf");
     }
 
     private void setUpFontSizeSettings()
@@ -140,7 +149,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     }
 
     private void setUpFontSettings() {
-        final String[] font_array = new String[]{"Serif ", "Normal", "Mono  ","Sans  "};
+        final String[] font_array = new String[]{"Serif ", "Normal", "Mono  ","Sans  ", "Robot"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, font_array);
         font_spinner.setAdapter(adapter);
@@ -168,6 +177,12 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                     case "Sans": {
                         essay.setTypeface(Typeface.SANS_SERIF);
                         essay_edit.setTypeface(Typeface.SANS_SERIF);
+                        break;
+                    }
+                    case "Robot":
+                    {
+                        essay.setTypeface(roboto);
+                        essay_edit.setTypeface(roboto);
                         break;
                     }
                 }
@@ -405,7 +420,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 essay_edit.setVisibility(View.GONE);
                 report_list.setVisibility(View.VISIBLE);
                 HashMap<String, List<Object>> i = new HashMap<String, List<Object>>();
-                i.put("spelling", Arrays.asList((Object)stats.misspelled));
+                i.put("spelling", Arrays.asList((Object) stats.misspelled));
                 ReportListAdapter adapter = new ReportListAdapter(
                         DisplayEssay.this, R.layout.spelling_error_row, i);
                 report_list.setAdapter(adapter);
@@ -529,6 +544,17 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         });
     }
 
+    private void setUpDrawerToggle() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toggle = new ActionBarDrawerToggle(
+                this, drawer,
+                0, 0
+        );
+
+        toggle.syncState();
+        drawer.setDrawerListener(toggle);
+    }
+
 
     private boolean isSentenceSpellCheckSupported() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
@@ -571,6 +597,33 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(word)}, 6);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_display_essay, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.save) {
+            new UploadEssay(this).update(title, essay.getText().toString());
+            Snackbar.make((View) drawer.getParent(), "\"" + title + "\" was saved", Snackbar.LENGTH_SHORT).show();
+        }
+        else if(item.getItemId() == R.id.home)
+        {
+            onBackPressed();
+        }
+        else if (toggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        else
+        {
+            drawer.openDrawer(Gravity.LEFT);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     enum Mode {
         spelling, reading, editing, synonym, analyzing;
 
@@ -579,7 +632,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     }
 
     class MyClickableSpan extends ClickableSpan {
-        String essay, response;
+        String essay;
         int start, end;
         final String word;
 
@@ -588,7 +641,6 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             this.start = start;
             this.end = end;
             word = essay.substring(start, end).trim();
-            Log.i("wordie", word);
 
         }
 
@@ -624,7 +676,6 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(getBaseContext(), "Error connection to server", Toast.LENGTH_SHORT).show();
                         }
                     });
 
@@ -721,6 +772,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             super.onPostExecute(aVoid);
             progress.dismiss();
 
+            DisplayEssay.this.setUpDrawerToggle();
             DisplayEssay.this.setUpFontSettings();
             DisplayEssay.this.setUpColorSettings();
             DisplayEssay.this.setUpShareSettings();
