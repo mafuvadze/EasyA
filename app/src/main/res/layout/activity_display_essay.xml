@@ -62,7 +62,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:background="@color/Gray"
+                android:background="@color/LightGrey"
                 android:orientation="vertical">
 
                 <RelativeLayout
@@ -75,7 +75,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
                         android:text="Reading Mode"
-                        android:textColor="@color/Green" />
+                        android:textColor="@color/DodgerBlue" />
 
                 </RelativeLayout>
 

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="10dp">
+
+    <RelativeLayout
+        android:background="@color/LightGreen"
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+
+        <TextView
+            android:layout_marginTop="5dp"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/DodgerBlue"
+            android:textSize="23sp"
+            android:text="Plagerism check passed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:layout_centerInParent="true"
+            android:src="@mipmap/ic_checkmark"
+            android:layout_width="90dp"
+            android:layout_height="90dp" />
+
+    </RelativeLayout>
+
+</FrameLayout>

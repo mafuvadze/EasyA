@@ -2,9 +2,13 @@ package mafuvadze.anesu.com.codedayapp;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.LabeledIntent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -27,6 +31,7 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -118,12 +123,25 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         drawer_mode = (TextView) findViewById(R.id.drawer_mode);
         autosave = (Switch) findViewById(R.id.autosave);
         autosave.setChecked(true);
-        roboto =  Typeface.createFromAsset(this.getAssets(),
+        roboto = Typeface.createFromAsset(this.getAssets(),
                 "fonts/Roboto-Thin.ttf");
     }
 
-    private void setUpFontSizeSettings()
-    {
+    private void setUpPlagListener() {
+        plagerism.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dialog dialog = new Dialog(DisplayEssay.this);
+                View view = LayoutInflater.from(DisplayEssay.this).inflate(R.layout.plag_check_pass, null, false);
+                dialog.setContentView(view);
+                dialog.setCancelable(true);
+                dialog.setTitle("Plagerism Check");
+                dialog.show();
+            }
+        });
+    }
+
+    private void setUpFontSizeSettings() {
         final int min = 12;
         size_seek.setMax(15);
         size_seek.setProgress(7);
@@ -149,7 +167,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     }
 
     private void setUpFontSettings() {
-        final String[] font_array = new String[]{"Serif ", "Normal", "Mono  ","Sans  ", "Robot"};
+        final String[] font_array = new String[]{"Serif ", "Normal", "Mono  ", "Sans  ", "Robot"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, font_array);
         font_spinner.setAdapter(adapter);
@@ -179,8 +197,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                         essay_edit.setTypeface(Typeface.SANS_SERIF);
                         break;
                     }
-                    case "Robot":
-                    {
+                    case "Robot": {
                         essay.setTypeface(roboto);
                         essay_edit.setTypeface(roboto);
                         break;
@@ -244,11 +261,79 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 sendIntent.putExtra(Intent.EXTRA_TEXT, essay.getText().toString());
                 sendIntent.setType("text/plain");
                 startActivity(sendIntent);
+
+                PackageManager pm = getPackageManager();
+
+                Intent openInChooser = Intent.createChooser(sendIntent, "Google drive");
+
+                List<ResolveInfo> resInfo = pm.queryIntentActivities(sendIntent, 0);
+                List<LabeledIntent> intentList = new ArrayList<LabeledIntent>();
+                for (int i = 0; i < resInfo.size(); i++) {
+                    // Extract the label, append it, and repackage it in a LabeledIntent
+                    ResolveInfo ri = resInfo.get(i);
+                    String packageName = ri.activityInfo.packageName;
+                    if (packageName.contains("drive")) {
+                        Intent intent = new Intent();
+                        intent.setComponent(new ComponentName(packageName, "drive"));
+                        intent.setAction(Intent.ACTION_SEND);
+                        intent.setType("text/plain");
+
+                        intentList.add(new LabeledIntent(intent, packageName, ri.loadLabel(pm), ri.icon));
+                    }
+                }
+
+                // convert intentList to array
+                LabeledIntent[] extraIntents = intentList.toArray(new LabeledIntent[intentList.size()]);
+
+                openInChooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents);
             }
         });
 
-        //upload to Google Drive
 
+    }
+
+    private void uploadToDrive()
+    {
+        upload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, essay.getText().toString());
+                sendIntent.setType("text/plain");
+                //startActivity(sendIntent);
+
+                PackageManager pm = getPackageManager();
+
+                Intent openInChooser = Intent.createChooser(sendIntent, "Google drive");
+
+                List<ResolveInfo> resInfo = pm.queryIntentActivities(sendIntent, 0);
+                List<LabeledIntent> intentList = new ArrayList<LabeledIntent>();
+                for (int i = 0; i < resInfo.size(); i++) {
+                    // Extract the label, append it, and repackage it in a LabeledIntent
+                    ResolveInfo ri = resInfo.get(i);
+                    String packageName = ri.activityInfo.packageName;
+                    if (packageName.contains("Drive")) {
+                        Intent intent = new Intent();
+                        intent.setComponent(new ComponentName(packageName, "drive"));
+                        intent.setAction(Intent.ACTION_SEND);
+                        intent.setType("text/plain");
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, essay.getText().toString());
+
+                        intentList.add(new LabeledIntent(sendIntent, packageName, ri.loadLabel(pm), ri.icon));
+                        LabeledIntent[] extraIntents = intentList.toArray(new LabeledIntent[intentList.size()]);
+
+                        openInChooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents);
+                        startActivity(openInChooser);
+                    }
+                    else{
+                        return;
+                    }
+                }
+
+                // convert intentList to array
+            }
+        });
     }
 
     private void setUpDeleteEssaySettings() {
@@ -609,16 +694,11 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         if (item.getItemId() == R.id.save) {
             new UploadEssay(this).update(title, essay.getText().toString());
             Snackbar.make((View) drawer.getParent(), "\"" + title + "\" was saved", Snackbar.LENGTH_SHORT).show();
-        }
-        else if(item.getItemId() == R.id.home)
-        {
+        } else if (item.getItemId() == R.id.home) {
             onBackPressed();
-        }
-        else if (toggle.onOptionsItemSelected(item)) {
+        } else if (toggle.onOptionsItemSelected(item)) {
             return true;
-        }
-        else
-        {
+        } else {
             drawer.openDrawer(Gravity.LEFT);
         }
         return super.onOptionsItemSelected(item);
@@ -716,27 +796,22 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         }
     }
 
-    class EnglishWords extends AsyncTask<Void, Void, Void>
-    {
+    class EnglishWords extends AsyncTask<Void, Void, Void> {
 
         Context context;
         HashSet<String> words;
         ProgressDialog progress;
-        public EnglishWords(Context context)
-        {
+
+        public EnglishWords(Context context) {
             this.context = context;
             words = new HashSet<>();
             this.execute();
         }
 
-        public boolean isWord(String word)
-        {
-            if(words.contains(word.toLowerCase()))
-            {
+        public boolean isWord(String word) {
+            if (words.contains(word.toLowerCase())) {
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
@@ -756,8 +831,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             ObjectInputStream scan = null;
             try {
                 scan = new ObjectInputStream(context.getResources().openRawResource(R.raw.words_bin));
-                while(true)
-                {
+                while (true) {
                     words.add((String) scan.readObject());
                 }
             } catch (Exception e) {
@@ -778,6 +852,8 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             DisplayEssay.this.setUpShareSettings();
             DisplayEssay.this.setUpDeleteEssaySettings();
             DisplayEssay.this.setUpFontSizeSettings();
+            DisplayEssay.this.setUpPlagListener();
+            DisplayEssay.this.uploadToDrive();
 
             initializeModeViews();
             recieveIntent();
