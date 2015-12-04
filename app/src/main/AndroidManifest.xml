@@ -27,7 +27,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".HomeScreen"
-            android:label="Easy A"
+            android:label="EasyA"
             android:screenOrientation="portrait" />
         <activity
             android:name=".CopyEssay"

@@ -3,8 +3,10 @@ package mafuvadze.anesu.com.codedayapp;
 import android.animation.ObjectAnimator;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -12,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -29,6 +32,9 @@ public class Login extends AppCompatActivity {
     TextView sign_up;
     ProgressDialog progress;
     RelativeLayout holder;
+    CheckBox remember;
+    DBHelper database;
+    TextInputLayout pass_inp, email_inp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +49,48 @@ public class Login extends AppCompatActivity {
         login = (Button) findViewById(R.id.login_btn);
         sign_up = (TextView) findViewById(R.id.signUp_txt);
         holder = (RelativeLayout) findViewById(R.id.rl);
+        remember = (CheckBox) findViewById(R.id.remember);
+        pass_inp = (TextInputLayout) findViewById(R.id.input_pass);
+        email_inp = (TextInputLayout) findViewById(R.id.input_email);
         setSignUpListener();
         setLoginListener();
+        setUpAutoLogin();
+    }
+
+    private void setUpAutoLogin()
+    {
+        if(checkIfLoginSaved())
+        {
+
+            remember.setChecked(true);
+            String email_txt = database.getEmail();
+            String pass_txt = database.getPass();
+
+            email.setText(email_txt);
+            pass.setText(pass_txt);
+            email.setBackgroundColor(getResources().getColor(R.color.Hightlight));
+            pass.setBackgroundColor(getResources().getColor(R.color.Hightlight));
+            email_inp.setBackgroundColor(getResources().getColor(R.color.Hightlight));
+            pass_inp.setBackgroundColor(getResources().getColor(R.color.Hightlight));
+
+        }
+    }
+
+    private boolean checkIfLoginSaved()
+    {
+        database = new DBHelper(this);
+        try{
+            String email = database.getEmail();
+            if(email.equals(""))
+            {
+                return false;
+            }
+            return true;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
     }
 
     private void setSignUpListener()
@@ -93,6 +139,18 @@ public class Login extends AppCompatActivity {
                             try {
                                 Intent intent = new Intent(Login.this, HomeScreen.class);
                                 intent.putExtra("login", "yes");
+                                if(remember.isChecked())
+                                {
+                                    database.addUser(email.getText().toString(), pass.getText().toString(), "user");
+                                    database.updateUserEmail(email.getText().toString());
+                                    database.updateUserPass(pass.getText().toString());
+                                }
+                                else
+                                {
+                                    database.addUser(email.getText().toString(), pass.getText().toString(), "user");
+                                    database.updateUserEmail("");
+                                    database.updateUserPass("");
+                                }
                                 startActivity(intent);
                             } catch (Exception error) {
                                 Toast.makeText(Login.this, "Authentication failed", Toast.LENGTH_SHORT).show();

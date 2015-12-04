@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="Hightlight">#FFFBCC</color>
     <color name="aqua">#66CCCC</color>
     <color name="white">#FFFFFF</color>
     <color name="yellow">#FFFF00</color>

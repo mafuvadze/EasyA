@@ -11,6 +11,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.Date;
@@ -40,6 +41,7 @@ public class UploadEssay
         essay.put("subject", subject);
         essay.put("content", essay_txt);
         essay.put("date", new Date().toString());
+        essay.put("author", (String)ParseUser.getCurrentUser().get("handle"));
         essay.saveInBackground(new SaveCallback() {
             @Override
             public void done(com.parse.ParseException e) {
@@ -50,25 +52,6 @@ public class UploadEssay
                 }
             }
 
-        });
-    }
-
-    public void update(final String title, final String essay_txt)
-    {
-        this.essay = essay_txt;
-        ParseQuery query = new ParseQuery("essays");
-        query.whereEqualTo("title", title);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                ParseObject essay = objects.get(0);
-                essay.put("content", essay);
-                try {
-                    essay.saveInBackground().waitForCompletion();
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-            }
         });
     }
 }

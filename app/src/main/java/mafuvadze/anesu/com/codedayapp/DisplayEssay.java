@@ -35,6 +35,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.textservice.SentenceSuggestionsInfo;
 import android.view.textservice.SpellCheckerSession;
@@ -65,6 +66,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 
 import java.io.ObjectInputStream;
@@ -83,14 +85,14 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     SpannableString ss, spelling_span;
     EditText essay_edit;
     TextView mode_indicator, essay, text_size_indicator, drawer_mode;
-    String essay_txt, title;
+    String essay_txt, title, subject;
     Mode current_mode = Mode.reading;
     private SpellCheckerSession mScs;
     private static final String TAG = DisplayEssay.class.getSimpleName();
     private static final int NOT_A_LENGTH = -1;
     EnglishWords words;
     EssayStats stats;
-    RelativeLayout share, delete, upload, plagerism;
+    RelativeLayout share, delete, share_user, plagerism;
     Spinner font_spinner, color_spinner;
     SeekBar size_seek;
     int currentTextColor, currentFont;
@@ -111,7 +113,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         text_size_indicator = (TextView) findViewById(R.id.text_size_indicator);
         share = (RelativeLayout) findViewById(R.id.share_essay);
         delete = (RelativeLayout) findViewById(R.id.delete);
-        upload = (RelativeLayout) findViewById(R.id.upload);
+        share_user = (RelativeLayout) findViewById(R.id.share_user);
         plagerism = (RelativeLayout) findViewById(R.id.plag);
         font_spinner = (Spinner) findViewById(R.id.font_spinner);
         color_spinner = (Spinner) findViewById(R.id.color_spinner);
@@ -131,12 +133,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         plagerism.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Dialog dialog = new Dialog(DisplayEssay.this);
-                View view = LayoutInflater.from(DisplayEssay.this).inflate(R.layout.plag_check_pass, null, false);
-                dialog.setContentView(view);
-                dialog.setCancelable(true);
-                dialog.setTitle("Plagerism Check");
-                dialog.show();
+                isOriginal(essay.getText().toString());
             }
         });
     }
@@ -260,80 +257,12 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 sendIntent.setAction(Intent.ACTION_SEND);
                 sendIntent.putExtra(Intent.EXTRA_TEXT, essay.getText().toString());
                 sendIntent.setType("text/plain");
+                drawer.closeDrawer(Gravity.LEFT);
                 startActivity(sendIntent);
-
-                PackageManager pm = getPackageManager();
-
-                Intent openInChooser = Intent.createChooser(sendIntent, "Google drive");
-
-                List<ResolveInfo> resInfo = pm.queryIntentActivities(sendIntent, 0);
-                List<LabeledIntent> intentList = new ArrayList<LabeledIntent>();
-                for (int i = 0; i < resInfo.size(); i++) {
-                    // Extract the label, append it, and repackage it in a LabeledIntent
-                    ResolveInfo ri = resInfo.get(i);
-                    String packageName = ri.activityInfo.packageName;
-                    if (packageName.contains("drive")) {
-                        Intent intent = new Intent();
-                        intent.setComponent(new ComponentName(packageName, "drive"));
-                        intent.setAction(Intent.ACTION_SEND);
-                        intent.setType("text/plain");
-
-                        intentList.add(new LabeledIntent(intent, packageName, ri.loadLabel(pm), ri.icon));
-                    }
-                }
-
-                // convert intentList to array
-                LabeledIntent[] extraIntents = intentList.toArray(new LabeledIntent[intentList.size()]);
-
-                openInChooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents);
             }
         });
 
 
-    }
-
-    private void uploadToDrive()
-    {
-        upload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, essay.getText().toString());
-                sendIntent.setType("text/plain");
-                //startActivity(sendIntent);
-
-                PackageManager pm = getPackageManager();
-
-                Intent openInChooser = Intent.createChooser(sendIntent, "Google drive");
-
-                List<ResolveInfo> resInfo = pm.queryIntentActivities(sendIntent, 0);
-                List<LabeledIntent> intentList = new ArrayList<LabeledIntent>();
-                for (int i = 0; i < resInfo.size(); i++) {
-                    // Extract the label, append it, and repackage it in a LabeledIntent
-                    ResolveInfo ri = resInfo.get(i);
-                    String packageName = ri.activityInfo.packageName;
-                    if (packageName.contains("Drive")) {
-                        Intent intent = new Intent();
-                        intent.setComponent(new ComponentName(packageName, "drive"));
-                        intent.setAction(Intent.ACTION_SEND);
-                        intent.setType("text/plain");
-                        sendIntent.putExtra(Intent.EXTRA_TEXT, essay.getText().toString());
-
-                        intentList.add(new LabeledIntent(sendIntent, packageName, ri.loadLabel(pm), ri.icon));
-                        LabeledIntent[] extraIntents = intentList.toArray(new LabeledIntent[intentList.size()]);
-
-                        openInChooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents);
-                        startActivity(openInChooser);
-                    }
-                    else{
-                        return;
-                    }
-                }
-
-                // convert intentList to array
-            }
-        });
     }
 
     private void setUpDeleteEssaySettings() {
@@ -343,7 +272,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
                 new AlertDialog.Builder(DisplayEssay.this)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle("Delete")
-                        .setMessage("Are you sure you want to delete " + title)
+                        .setMessage("Are you sure you want to delete \"" + title + "\"")
                         .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 
                             @Override
@@ -380,6 +309,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
 
     private void recieveIntent() {
         title = getIntent().getStringExtra("title");
+        subject = getIntent().getStringExtra("subject");
         ParseQuery query = new ParseQuery("essays");
         query.whereEqualTo("title", title);
         query.findInBackground(this);
@@ -682,6 +612,51 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
         mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(word)}, 6);
     }
 
+    private void isOriginal(final String essay_text)
+    {
+        ParseQuery query = new ParseQuery("essays");
+        query.findInBackground(new FindCallback<ParseObject>() {
+
+            @Override
+            public void done(List<ParseObject> essays, ParseException e) {
+                boolean original = true;
+                for(ParseObject essay : essays)
+                {
+                    String author = (String) essay.get("author");
+                    if(!author.equals(ParseUser.getCurrentUser().get("handle"))) {
+                        String content = (String) essay.get("content");
+                        if(content.trim().equals(essay_text.trim()))
+                        {
+                            original = false;
+                            break;
+                        }
+                    }
+
+                }
+                if(!original)
+                {
+                    drawer.closeDrawer(Gravity.LEFT);
+                    Dialog dialog = new Dialog(DisplayEssay.this);
+                    View view = LayoutInflater.from(DisplayEssay.this).inflate(R.layout.plag_check_fail, null, false);
+                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog.setContentView(view);
+                    dialog.setCancelable(true);
+                    dialog.show();
+                }
+                else
+                {
+                    drawer.closeDrawer(Gravity.LEFT);
+                    Dialog dialog = new Dialog(DisplayEssay.this);
+                    View view = LayoutInflater.from(DisplayEssay.this).inflate(R.layout.plag_check_pass, null, false);
+                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog.setContentView(view);
+                    dialog.setCancelable(true);
+                    dialog.show();
+                }
+            }
+        });
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -692,7 +667,7 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.save) {
-            new UploadEssay(this).update(title, essay.getText().toString());
+            new UploadEssay(this).upload(this.title, this.subject, essay.getText().toString());
             Snackbar.make((View) drawer.getParent(), "\"" + title + "\" was saved", Snackbar.LENGTH_SHORT).show();
         } else if (item.getItemId() == R.id.home) {
             onBackPressed();
@@ -853,7 +828,6 @@ public class DisplayEssay extends AppCompatActivity implements FindCallback<Pars
             DisplayEssay.this.setUpDeleteEssaySettings();
             DisplayEssay.this.setUpFontSizeSettings();
             DisplayEssay.this.setUpPlagListener();
-            DisplayEssay.this.uploadToDrive();
 
             initializeModeViews();
             recieveIntent();
