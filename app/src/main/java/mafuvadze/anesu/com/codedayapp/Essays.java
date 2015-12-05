@@ -16,7 +16,11 @@ import android.view.ViewGroup;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.baoyz.swipemenulistview.SwipeMenu;
@@ -43,6 +47,8 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
     FloatingActionButton add_copy, add_cam;
     static SwipeMenuListView essayList;
     List<ParseObject> essays = new ArrayList<>();
+    LinearLayout share;
+    AutoCompleteTextView recipient;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -69,6 +75,11 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
         query.findInBackground(this);
     }
 
+    private void initializeShareViews(View view)
+    {
+        recipient = (AutoCompleteTextView) view.findViewById(R.id.recipient);
+    }
+
     private void setListViewListener() {
         essayList.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
             @Override
@@ -82,7 +93,7 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
                         intent.putExtra("subject", (String) essays.get(position).get("subject"));
                         startActivity(intent);
                         break;
-                    case 1:
+                    case 2:
                         // delete
                         final String essayTitle = (String) essays.get(position).get("title");
                         new AlertDialog.Builder(getActivity())
@@ -98,7 +109,7 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
                                         query.findInBackground(new FindCallback<ParseObject>() {
                                             @Override
                                             public void done(List<ParseObject> parseObjects, ParseException e) {
-                                                if(e==null) {
+                                                if (e == null) {
 
 
                                                     for (ParseObject delete : parseObjects) {
@@ -110,7 +121,7 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
                                                         getEssays();
                                                         Snackbar.make((View) essayList.getParent(), essayTitle + " was deleted", Snackbar.LENGTH_SHORT).show();
                                                     }
-                                                }else{
+                                                } else {
                                                     Toast.makeText(getActivity().getBaseContext(), "error in deleting", Toast.LENGTH_SHORT).show();
                                                 }
                                             }
@@ -122,11 +133,31 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
                                 .show();
 
                         break;
+                    case 1: {
+                        shareEssay();
+                        break;
+                    }
                 }
-                // false : close the menu; true : not close the menu
                 return false;
             }
         });
+    }
+
+    private void shareEssay()
+    {
+        share = (LinearLayout) LayoutInflater.from(getActivity().getApplicationContext()).inflate(R.layout.share_layout, null, false);
+        initializeShareViews(share);
+        new AlertDialog.Builder(getActivity())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setView(share)
+                .setPositiveButton("Share", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                        .setNegativeButton("Cancel", null)
+                        .show();
     }
 
     private void createMenu() {
@@ -138,21 +169,31 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
                         getActivity().getApplication().getBaseContext());
                 openItem.setBackground(new ColorDrawable(Color.rgb(0xC9, 0xC9,
                         0xCE)));
-                openItem.setWidth(essayList.getWidth()/4);
+                openItem.setWidth(essayList.getWidth()/3);
                 openItem.setTitle("Open");
                 openItem.setTitleSize(19);
                 openItem.setTitleColor(Color.WHITE);
                 menu.addMenuItem(openItem);
 
+                SwipeMenuItem shareItem = new SwipeMenuItem(
+                        getActivity().getApplication().getBaseContext());
+                shareItem.setBackground(new ColorDrawable(Color.parseColor("#98AFC7")));
+                shareItem.setWidth(essayList.getWidth()/3);
+                shareItem.setTitle("Share");
+                shareItem.setTitleSize(19);
+                shareItem.setTitleColor(Color.WHITE);
+                menu.addMenuItem(shareItem);
+
                 SwipeMenuItem deleteItem = new SwipeMenuItem(
                         getActivity().getApplication().getBaseContext());
                 deleteItem.setBackground(new ColorDrawable(Color.rgb(0xF9,
                         0x3F, 0x25)));
-                deleteItem.setWidth(essayList.getWidth()/4);
+                deleteItem.setWidth(essayList.getWidth()/3);
                 deleteItem.setTitle("Delete");
                 deleteItem.setTitleSize(19);
                 deleteItem.setTitleColor(Color.WHITE);
                 menu.addMenuItem(deleteItem);
+
             }
         };
 
