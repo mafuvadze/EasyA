@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -42,6 +43,8 @@ public class UploadEssay
         essay.put("content", essay_txt);
         essay.put("date", new Date().toString());
         essay.put("author", (String)ParseUser.getCurrentUser().get("handle"));
+        String[] shared = new String[15];
+        essay.put("shared", shared);
         essay.saveInBackground(new SaveCallback() {
             @Override
             public void done(com.parse.ParseException e) {

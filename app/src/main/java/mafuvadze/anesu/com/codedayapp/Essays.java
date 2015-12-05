@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,8 +35,10 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -69,15 +72,27 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
 
     }
 
-    private void getEssays()
-    {
+    private void getEssays() {
         ParseQuery query = new ParseQuery("essays");
         query.findInBackground(this);
     }
 
-    private void initializeShareViews(View view)
-    {
+    private void initializeShareViews(View view) {
         recipient = (AutoCompleteTextView) view.findViewById(R.id.recipient);
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.findInBackground(new FindCallback<ParseUser>() {
+
+            @Override
+            public void done(List<ParseUser> objects, ParseException e) {
+                String[] usernames = new String[objects.size()];
+                for (int i = 0; i < objects.size(); i++) {
+                    usernames[i] = (String) objects.get(i).get("handle");
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_dropdown_item_1line, usernames);
+                recipient.setAdapter(adapter);
+                Log.i("usernames", Arrays.toString(usernames));
+            }
+        });
     }
 
     private void setListViewListener() {
@@ -134,7 +149,7 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
 
                         break;
                     case 1: {
-                        shareEssay();
+                        shareEssay(essays.get(position));
                         break;
                     }
                 }
@@ -143,8 +158,7 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
         });
     }
 
-    private void shareEssay()
-    {
+    private void shareEssay(final ParseObject essay) {
         share = (LinearLayout) LayoutInflater.from(getActivity().getApplicationContext()).inflate(R.layout.share_layout, null, false);
         initializeShareViews(share);
         new AlertDialog.Builder(getActivity())
@@ -156,8 +170,8 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
 
                     }
                 })
-                        .setNegativeButton("Cancel", null)
-                        .show();
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void createMenu() {
@@ -169,7 +183,7 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
                         getActivity().getApplication().getBaseContext());
                 openItem.setBackground(new ColorDrawable(Color.rgb(0xC9, 0xC9,
                         0xCE)));
-                openItem.setWidth(essayList.getWidth()/3);
+                openItem.setWidth(essayList.getWidth() / 3);
                 openItem.setTitle("Open");
                 openItem.setTitleSize(19);
                 openItem.setTitleColor(Color.WHITE);
@@ -178,7 +192,7 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
                 SwipeMenuItem shareItem = new SwipeMenuItem(
                         getActivity().getApplication().getBaseContext());
                 shareItem.setBackground(new ColorDrawable(Color.parseColor("#98AFC7")));
-                shareItem.setWidth(essayList.getWidth()/3);
+                shareItem.setWidth(essayList.getWidth() / 3);
                 shareItem.setTitle("Share");
                 shareItem.setTitleSize(19);
                 shareItem.setTitleColor(Color.WHITE);
@@ -188,7 +202,7 @@ public class Essays extends Fragment implements FindCallback<ParseObject> {
                         getActivity().getApplication().getBaseContext());
                 deleteItem.setBackground(new ColorDrawable(Color.rgb(0xF9,
                         0x3F, 0x25)));
-                deleteItem.setWidth(essayList.getWidth()/3);
+                deleteItem.setWidth(essayList.getWidth() / 3);
                 deleteItem.setTitle("Delete");
                 deleteItem.setTitleSize(19);
                 deleteItem.setTitleColor(Color.WHITE);
