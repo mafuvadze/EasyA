@@ -2,6 +2,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="mafuvadze.anesu.com.codedayapp.HomeScreen">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/arrow_down"
+        android:orderInCategory="100"
+        android:title="expand"
+        android:icon="@mipmap/ic_call_received_white_24dp"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/arrow_up"
+        android:orderInCategory="100"
+        android:icon="@mipmap/ic_call_made_white_24dp"
+        android:title="collapse"
+        app:showAsAction="always" />
+
+
 </menu>

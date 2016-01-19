@@ -12,6 +12,7 @@
 
 
     <RelativeLayout
+        android:id="@+id/holder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight=".8"
@@ -39,10 +40,10 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/holder2"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="56dp"
         android:layout_margin="7dp"
-        android:layout_weight=".17"
         android:background="@color/DodgerBlue"
         android:orientation="horizontal">
 

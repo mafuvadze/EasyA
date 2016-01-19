@@ -13,16 +13,19 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.parse.GetDataCallback;
@@ -39,11 +42,15 @@ public class HomeScreen extends AppCompatActivity {
     TextView username;
     Button essays_btn, stats_btn;
     Boolean essayFragShown = true;
+    Typeface roboto;
+    MenuItem expand, collapse;
+    RelativeLayout holder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
 
+        holder = (RelativeLayout) findViewById(R.id.holder);
         profile_pic = (ImageView) findViewById(R.id.profilePic);
         username = (TextView) findViewById(R.id.user_name);
         essays_btn = (Button) findViewById(R.id.essays);
@@ -51,6 +58,8 @@ public class HomeScreen extends AppCompatActivity {
         essays_btn.setBackgroundColor(Color.argb(255, 51, 153, 255));
         essays_btn.setTextColor(Color.WHITE);
         essayFragShown = true;
+        roboto = Typeface.createFromAsset(this.getAssets(),
+                "fonts/Roboto-Thin.ttf");
 
         //check if it's first time seeing activity (just logged in)
         try {
@@ -161,6 +170,7 @@ public class HomeScreen extends AppCompatActivity {
     public void setUsername()
     {
         String usern = (String) ParseUser.getCurrentUser().get("handle");
+        username.setTypeface(roboto);
         username.setText(usern);
     }
 
@@ -265,6 +275,45 @@ public class HomeScreen extends AppCompatActivity {
 
         File imageFile = new File(folder,"profile_pic.jpg");
         return imageFile;
+    }
+
+    private void setUpABListeners()
+    {
+        expand.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                expand.setVisible(false);
+                collapse.setVisible(true);
+                holder.setVisibility(View.GONE);
+                return true;
+            }
+        });
+
+        collapse.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                collapse.setVisible(false);
+                expand.setVisible(true);
+                holder.setVisibility(View.VISIBLE);
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_home_screen, menu);
+        expand = menu.findItem(R.id.arrow_up);
+        collapse = menu.findItem(R.id.arrow_down);
+        collapse.setVisible(false);
+        setUpABListeners();
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 
 }
